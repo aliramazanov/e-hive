@@ -4,26 +4,43 @@ services:
       context: .
       dockerfile: ./apps/reservation/Dockerfile
       target: development
-    command: pnpm run start:dev reservation
+    command: sh -c "pnpm install && pnpm run start:dev reservation"
     ports:
       - '3000:3000'
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+    environment:
+      - NODE_ENV=development
+
   auth:
     build:
       context: .
       dockerfile: ./apps/auth/Dockerfile
       target: development
-    command: pnpm run start:dev auth
+    command: sh -c "pnpm install && pnpm run start:dev auth"
     env_file:
       - jwt.config.env
     ports:
       - '3001:3001'
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+    environment:
+      - NODE_ENV=development
+
   postgres:
-    image: postgres
+    image: postgres:latest
     env_file:
       - postgres.config.env
     ports:
       - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
