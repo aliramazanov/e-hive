@@ -25,7 +25,6 @@ import * as Joi from 'joi';
         configService: ConfigService,
         logger: PinoLogger,
       ): TypeOrmModuleOptions => {
-        const databaseUrl = configService.get<string>('DATABASE_URL');
         const config: TypeOrmModuleOptions = {
           type: 'postgres',
           host: configService.get<string>('POSTGRES_HOST'),
@@ -37,7 +36,7 @@ import * as Joi from 'joi';
           synchronize: true,
         };
         logger.info(
-          `Connecting to PostgreSQL at ${`${config.host}:${config.port} ${config.username} ${config.password} ${config.database}`}`,
+          `Connecting to PostgreSQL at ${`${config.host}:${config.port}`}`,
         );
         return config;
       },

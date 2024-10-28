@@ -1,20 +1,4 @@
 services:
-  # reservations:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/reservation/Dockerfile
-  #     target: development
-  #   command: sh -c "pnpm install && pnpm run start:dev reservation"
-  #   ports:
-  #     - '3000:3000'
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - NODE_ENV=development
-
   auth:
     build:
       context: .
@@ -29,9 +13,12 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - NODE_ENV=development
+    networks:
+      - app-network
 
   postgres:
     image: postgres:latest
@@ -41,6 +28,18 @@ services:
       - '5433:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    name: app-network
