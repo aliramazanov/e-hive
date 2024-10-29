@@ -51,7 +51,7 @@ services:
     env_file:
       - ./libs/common/src/postgres/postgres.config.env
     ports:
-      - '3001:3001'
+      - '3002:3002'
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
