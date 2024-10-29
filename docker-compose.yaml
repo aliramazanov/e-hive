@@ -21,6 +21,48 @@ services:
     networks:
       - app-network
 
+  event:
+    build:
+      context: .
+      dockerfile: ./apps/event/Dockerfile
+      target: development
+    command: sh -c "pnpm install && pnpm run start:dev event"
+    env_file:
+      - ./libs/common/src/postgres/postgres.config.env
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=development
+    networks:
+      - app-network
+
+  booking:
+    build:
+      context: .
+      dockerfile: ./apps/booking/Dockerfile
+      target: development
+    command: sh -c "pnpm install && pnpm run start:dev booking"
+    env_file:
+      - ./libs/common/src/postgres/postgres.config.env
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=development
+    networks:
+      - app-network
+
   postgres:
     image: postgres:latest
     env_file:
