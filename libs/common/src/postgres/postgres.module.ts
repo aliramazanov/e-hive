@@ -1,7 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { LoggerModule, PinoLogger } from 'nestjs-pino';
 import * as Joi from 'joi';
 
 @Global()
@@ -18,29 +17,21 @@ import * as Joi from 'joi';
       }),
       envFilePath: 'postgres.config.env',
     }),
-    LoggerModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (
-        configService: ConfigService,
-        logger: PinoLogger,
-      ): TypeOrmModuleOptions => {
-        const config: TypeOrmModuleOptions = {
+      useFactory: (configService: ConfigService): TypeOrmModuleOptions => {
+        return {
           type: 'postgres',
           host: configService.get<string>('POSTGRES_HOST'),
-          port: configService.get<number>('POSTGRES_PORT'),
+          port: Number(configService.get<number>('POSTGRES_PORT')),
           username: configService.get<string>('POSTGRES_USER'),
           password: configService.get<string>('POSTGRES_PASSWORD'),
           database: configService.get<string>('POSTGRES_DB'),
           autoLoadEntities: true,
           synchronize: true,
         };
-        logger.info(
-          `Connecting to PostgreSQL at ${`${config.host}:${config.port}`}`,
-        );
-        return config;
       },
-      inject: [ConfigService, PinoLogger],
+      inject: [ConfigService],
     }),
   ],
   exports: [TypeOrmModule],

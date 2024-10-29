@@ -6,7 +6,8 @@ services:
       target: development
     command: sh -c "pnpm install && pnpm run start:dev auth"
     env_file:
-      - jwt.config.env
+      - ./apps/auth/jwt.config.env
+      - ./libs/common/src/postgres/postgres.config.env
     ports:
       - '3001:3001'
     volumes:
@@ -23,7 +24,7 @@ services:
   postgres:
     image: postgres:latest
     env_file:
-      - postgres.config.env
+      - ./libs/common/src/postgres/postgres.config.env
     ports:
       - '5433:5432'
     volumes:
@@ -31,7 +32,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,4 +43,4 @@ volumes:
 
 networks:
   app-network:
-    name: app-network
+    driver: bridge
