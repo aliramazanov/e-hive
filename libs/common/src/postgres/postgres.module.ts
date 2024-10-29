@@ -2,7 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as Joi from 'joi';
-import { UserEntity } from './entity/user.entity';
+import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 
 @Global()
 @Module({
@@ -30,13 +30,15 @@ import { UserEntity } from './entity/user.entity';
           database: configService.get<string>('POSTGRES_DB'),
           autoLoadEntities: true,
           synchronize: true,
-          entities: [UserEntity],
         };
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([UserEntity]),
   ],
   exports: [TypeOrmModule],
 })
-export class PostgresModule {}
+export class PostgresModule {
+  static forFeature(models: EntityClassOrSchema[]) {
+    return TypeOrmModule.forFeature(models);
+  }
+}
