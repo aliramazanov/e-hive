@@ -2,6 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as Joi from 'joi';
+import { UserEntity } from './entity/user.entity';
 
 @Global()
 @Module({
@@ -29,10 +30,12 @@ import * as Joi from 'joi';
           database: configService.get<string>('POSTGRES_DB'),
           autoLoadEntities: true,
           synchronize: true,
+          entities: [UserEntity],
         };
       },
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([UserEntity]),
   ],
   exports: [TypeOrmModule],
 })

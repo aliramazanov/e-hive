@@ -1,1 +1,1 @@
-export * from './postgres/postgres.module';
+export * from './postgres/index';
