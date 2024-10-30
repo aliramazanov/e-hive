@@ -11,13 +11,13 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { JwtPayload } from './definition/jwt-payload.interface';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { UserEntity } from './user.entity';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private jwtService: JwtService,
   ) {}
 

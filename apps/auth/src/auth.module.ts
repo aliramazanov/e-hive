@@ -6,13 +6,13 @@ import { PassportModule } from '@nestjs/passport';
 import * as Joi from 'joi';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
-import { UserEntity } from './user.entity';
+import { User } from './entity/user.entity';
+import { JwtStrategy } from './jwt/jwt.strategy';
 
 @Module({
   imports: [
     PostgresModule,
-    PostgresModule.forFeature([UserEntity]),
+    PostgresModule.forFeature([User]),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
