@@ -13,7 +13,7 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
   ) {}
 
   async create(entity: T): Promise<T> {
-    return this.entityManager.save(entity);
+    return await this.entityManager.save(entity);
   }
 
   async findOne(where: FindOptionsWhere<T>): Promise<T> {
@@ -38,11 +38,12 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
       throw new NotFoundException(this.errormsg);
     }
 
-    return this.findOne(where);
+    return await this.findOne(where);
   }
 
   async find(where: FindOptionsWhere<T>): Promise<T[]> {
-    return this.entityRepository.findBy(where);
+    const entities = await this.entityRepository.findBy(where);
+    return entities || [];
   }
 
   async findOneAndDelete(where: FindOptionsWhere<T>) {

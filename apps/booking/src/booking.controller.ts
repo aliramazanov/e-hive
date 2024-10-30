@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -13,21 +14,25 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Controller('booking')
 export class BookingController {
+  private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}
 
-  @Post()
+  @Post('/new')
   async create(@Body() createBookingDto: CreateBookingDto) {
+    this.logger.log(`Data: ${JSON.stringify(createBookingDto)}`);
     return this.bookingService.create(createBookingDto);
   }
 
   @Get(':id')
   async find(@Param('id') id: string) {
-    this.bookingService.find(id);
+    this.logger.log(`Finding booking with ID: ${id}`);
+    return this.bookingService.find(id);
   }
 
-  @Get()
+  @Get('/all')
   async list() {
-    this.bookingService.list();
+    this.logger.log(`Listing all the booking entries`);
+    return this.bookingService.list();
   }
 
   @Patch(':id')
@@ -35,11 +40,13 @@ export class BookingController {
     @Param('id') id: string,
     @Body() updateBookingDto: UpdateBookingDto,
   ) {
-    this.bookingService.update(id, updateBookingDto);
+    this.logger.log(`Updating booking with ID: ${id}`);
+    return this.bookingService.update(id, updateBookingDto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    this.bookingService.remove(id);
+    this.logger.log(`Deleting booking with ID: ${id}`);
+    return this.bookingService.remove(id);
   }
 }

@@ -6,13 +6,13 @@ import { Booking } from '../entity/booking.entity';
 
 @Injectable()
 export class BookingRepository extends AbstractRepository<Booking> {
-  protected logger: Logger;
+  protected readonly logger = new Logger(BookingRepository.name);
 
   constructor(
     @InjectRepository(Booking)
-    bookingRepository: Repository<Booking>,
+    entityRepository: Repository<Booking>,
     entityManager: EntityManager,
   ) {
-    super(bookingRepository, entityManager);
+    super(entityRepository, entityManager);
   }
 }

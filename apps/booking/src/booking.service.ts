@@ -23,7 +23,7 @@ export class BookingService {
       timestamp,
     };
 
-    this.bookingRepository.create(booking);
+    return this.bookingRepository.create(booking);
   }
 
   async find(id: string) {
