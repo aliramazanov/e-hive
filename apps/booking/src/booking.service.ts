@@ -13,8 +13,9 @@ export class BookingService {
   ) {}
 
   async create(createBookingDto: CreateBookingDto) {
-    const id = crypto.randomUUID();
     const timestamp = new Date();
+    const formattedDate = timestamp.toISOString().replace(/[-:.TZ]/g, '');
+    const id = `${crypto.randomUUID()}-${formattedDate}`;
 
     const booking = {
       id,
