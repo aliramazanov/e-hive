@@ -18,6 +18,7 @@ services:
         condition: service_healthy
     environment:
       - NODE_ENV=development
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     networks:
       - app-network
 
@@ -39,6 +40,7 @@ services:
         condition: service_healthy
     environment:
       - NODE_ENV=development
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     networks:
       - app-network
 
@@ -60,8 +62,18 @@ services:
         condition: service_healthy
     environment:
       - NODE_ENV=development
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     networks:
       - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
 
   postgres:
     image: postgres:latest

@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { JwtAuthGuard } from '@app/common';
+import { Injectable, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -12,6 +13,7 @@ export class BookingService {
     private readonly bookingRepository: BookingRepository,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   async create(createBookingDto: CreateBookingDto) {
     const timestamp = new Date();
     const formattedDate = timestamp.toISOString().replace(/[-:.TZ]/g, '');

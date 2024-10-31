@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -60,5 +61,25 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     return { token };
+  }
+
+  @MessagePattern('validate_token')
+  async validateToken(@Payload() payload: { token: string }) {
+    try {
+      const decoded = this.jwtService.verify(payload.token) as JwtPayload;
+
+      const user = await this.userRepository.findOne({
+        where: { username: decoded.username },
+        select: ['id', 'username'],
+      });
+
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "e-hive",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "",
   "author": "",
   "private": true,
@@ -30,6 +30,8 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^10.0.2",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.4",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -94,7 +96,6 @@
     ],
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/definitions(|/.*)$": "<rootDir>/libs/definitions/src/$1",
       "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1"
     }
   }

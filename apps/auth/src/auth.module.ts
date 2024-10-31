@@ -1,4 +1,4 @@
-import { PostgresModule } from '@app/common';
+import { PostgresModule, RabbitMQModule } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -13,6 +13,7 @@ import { JwtStrategy } from './jwt/jwt.strategy';
   imports: [
     PostgresModule,
     PostgresModule.forFeature([User]),
+    RabbitMQModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
