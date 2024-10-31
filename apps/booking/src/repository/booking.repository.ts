@@ -10,9 +10,9 @@ export class BookingRepository extends AbstractRepository<Booking> {
 
   constructor(
     @InjectRepository(Booking)
-    entityRepository: Repository<Booking>,
+    repository: Repository<Booking>,
     entityManager: EntityManager,
   ) {
-    super(entityRepository, entityManager);
+    super(repository, entityManager);
   }
 }

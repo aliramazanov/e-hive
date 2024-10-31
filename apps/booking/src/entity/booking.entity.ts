@@ -11,4 +11,8 @@ export class Booking extends AbstractEntity<Booking> {
 
   @Column()
   timestamp: Date;
+
+  constructor(partial: Partial<Booking>) {
+    super(partial);
+  }
 }

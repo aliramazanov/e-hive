@@ -8,22 +8,18 @@ import { BookingRepository } from './repository/booking.repository';
 
 @Injectable()
 export class BookingService {
-  constructor(
-    @InjectRepository(Booking)
-    private readonly bookingRepository: BookingRepository,
-  ) {}
+  constructor(private readonly bookingRepository: BookingRepository) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async create(createBookingDto: CreateBookingDto) {
     const timestamp = new Date();
-    const formattedDate = timestamp.toISOString().replace(/[-:.TZ]/g, '');
-    const id = `${crypto.randomUUID()}-${formattedDate}`;
+    const id = crypto.randomUUID();
 
-    const booking = {
+    const booking = new Booking({
       id,
       ...createBookingDto,
       timestamp,
-    };
+    });
 
     return this.bookingRepository.create(booking);
   }

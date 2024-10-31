@@ -17,22 +17,22 @@ export class BookingController {
   private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}
 
-  @Post('/new')
+  @Post()
   async create(@Body() createBookingDto: CreateBookingDto) {
     this.logger.log(`Data: ${JSON.stringify(createBookingDto)}`);
     return this.bookingService.create(createBookingDto);
+  }
+
+  @Get()
+  async list() {
+    this.logger.log(`Listing all the booking entries`);
+    return this.bookingService.list();
   }
 
   @Get(':id')
   async find(@Param('id') id: string) {
     this.logger.log(`Finding booking with ID: ${id}`);
     return this.bookingService.find(id);
-  }
-
-  @Get('/all')
-  async list() {
-    this.logger.log(`Listing all the booking entries`);
-    return this.bookingService.list();
   }
 
   @Patch(':id')
