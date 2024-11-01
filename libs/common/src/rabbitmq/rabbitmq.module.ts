@@ -6,7 +6,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   imports: [
     ClientsModule.registerAsync([
       {
-        name: 'auth_service',
+        name: 'AUTH_SERVICE',
         imports: [ConfigModule],
         useFactory: async (configService: ConfigService) => {
           const rabbitMqUrl = configService.get<string>('RABBITMQ_URL');

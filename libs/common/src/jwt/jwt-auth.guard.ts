@@ -14,6 +14,24 @@ export class JwtAuthGuard implements CanActivate {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
   ) {}
 
+  private getRequest(context: ExecutionContext) {
+    const contextType = context.getType();
+
+    switch (contextType) {
+      case 'http':
+        return context.switchToHttp().getRequest();
+      case 'rpc':
+        return context.switchToRpc().getData();
+      default:
+        throw new Error('Unsupported context type');
+    }
+  }
+
+  private extractTokenFromHeader(request: any): string | null {
+    const [type, token] = request.headers?.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : null;
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = this.getRequest(context);
 
@@ -34,23 +52,5 @@ export class JwtAuthGuard implements CanActivate {
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
-  }
-
-  private getRequest(context: ExecutionContext) {
-    const contextType = context.getType();
-
-    switch (contextType) {
-      case 'http':
-        return context.switchToHttp().getRequest();
-      case 'rpc':
-        return context.switchToRpc().getData();
-      default:
-        throw new Error('Unsupported context type');
-    }
-  }
-
-  private extractTokenFromHeader(request: any): string | null {
-    const [type, token] = request.headers?.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : null;
   }
 }

@@ -3,6 +3,9 @@
 FROM node:lts-alpine as development
 WORKDIR /usr/src/app
 
+# Set options for memory allocation
+ENV NODE_OPTIONS=--max-old-space-size=8192
+
 # Install pnpm globally
 RUN npm i -g pnpm
 
