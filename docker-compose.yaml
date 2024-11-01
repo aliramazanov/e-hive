@@ -16,6 +16,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - NODE_ENV=development
       - NODE_OPTIONS=--max-old-space-size=8192
@@ -38,6 +40,8 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     environment:
       - NODE_ENV=development
@@ -62,6 +66,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - NODE_ENV=development
       - NODE_OPTIONS=--max-old-space-size=8192
@@ -77,6 +83,16 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'rabbitmqctl', 'status']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   postgres:
     image: postgres:latest
@@ -97,6 +113,7 @@ services:
 
 volumes:
   postgres_data:
+  rabbitmq_data:
 
 networks:
   app-network:

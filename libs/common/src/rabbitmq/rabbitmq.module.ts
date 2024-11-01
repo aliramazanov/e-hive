@@ -23,6 +23,9 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
               queueOptions: {
                 durable: true,
               },
+              retryAttempts: 5,
+              retryDelay: 5000,
+              persistent: true,
             },
           };
         },

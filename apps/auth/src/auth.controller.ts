@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('auth')
 export class AuthController {
@@ -16,5 +17,10 @@ export class AuthController {
     @Body() authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ token: string }> {
     return this.authService.signIn(authCredentialsDto);
+  }
+
+  @MessagePattern('validate_token')
+  async validateToken(@Payload() payload: { token: string }) {
+    return this.authService.validateToken(payload);
   }
 }

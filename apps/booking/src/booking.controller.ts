@@ -13,34 +13,35 @@ import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '@app/common';
 
 @Controller('booking')
 export class BookingController {
   private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createBookingDto: CreateBookingDto) {
     this.logger.log(`Data: ${JSON.stringify(createBookingDto)}`);
     return this.bookingService.create(createBookingDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get()
   async list() {
     this.logger.log(`Listing all the booking entries`);
     return this.bookingService.list();
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async find(@Param('id') id: string) {
     this.logger.log(`Finding booking with ID: ${id}`);
     return this.bookingService.find(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -50,7 +51,7 @@ export class BookingController {
     return this.bookingService.update(id, updateBookingDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     this.logger.log(`Deleting booking with ID: ${id}`);
