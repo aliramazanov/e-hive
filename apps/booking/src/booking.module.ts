@@ -25,6 +25,10 @@ import { BookingRepository } from './repository/booking.repository';
             queueOptions: {
               durable: true,
             },
+            retryAttempts: 3,
+            retryDelay: 3000,
+            noAck: false,
+            persistent: true,
           },
         }),
         inject: [ConfigService],

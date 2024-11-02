@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Logger,
   Param,
   Patch,
@@ -23,8 +24,22 @@ export class BookingController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createBookingDto: CreateBookingDto) {
-    this.logger.log(`Data: ${JSON.stringify(createBookingDto)}`);
-    return this.bookingService.create(createBookingDto);
+    try {
+      this.logger.debug(
+        `Received create booking request: ${JSON.stringify(createBookingDto)}`,
+      );
+      const result = await this.bookingService.create(createBookingDto);
+      this.logger.debug(
+        `Booking created successfully: ${JSON.stringify(result)}`,
+      );
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create booking: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Failed to create booking');
+    }
   }
 
   @UseGuards(JwtAuthGuard)

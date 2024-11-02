@@ -73,15 +73,12 @@ export class AuthService {
     try {
       if (!payload?.token) {
         this.logger.warn('Token validation failed: No token provided');
-        throw new RpcException('Token is required');
+        return { valid: false, error: 'Token is required' };
       }
 
-      const decoded = await this.jwtService.verifyAsync<JwtPayload>(
-        payload.token,
-        {
-          ignoreExpiration: false,
-        },
-      );
+      const decoded = await this.jwtService.verifyAsync(payload.token, {
+        ignoreExpiration: false,
+      });
 
       this.logger.debug(
         `Token decoded successfully for username: ${decoded.username}`,
@@ -94,19 +91,15 @@ export class AuthService {
 
       if (!user) {
         this.logger.warn(`User not found for username: ${decoded.username}`);
-        throw new RpcException('User not found');
+        return { valid: false, error: 'User not found' };
       }
 
       this.logger.debug(
         `Token validation successful for user: ${user.username}`,
       );
 
-      return user;
+      return { valid: true, user };
     } catch (error) {
-      if (error instanceof RpcException) {
-        throw error;
-      }
-
       this.logger.error('Token validation failed', {
         error: error.message,
         stack: error.stack,
@@ -116,14 +109,14 @@ export class AuthService {
       });
 
       if (error?.name === 'TokenExpiredError') {
-        throw new RpcException('Token has expired');
+        return { valid: false, error: 'Token has expired' };
       }
 
       if (error?.name === 'JsonWebTokenError') {
-        throw new RpcException('Invalid token format');
+        return { valid: false, error: 'Invalid token format' };
       }
 
-      throw new RpcException('Invalid token');
+      return { valid: false, error: 'Invalid token' };
     }
   }
 }

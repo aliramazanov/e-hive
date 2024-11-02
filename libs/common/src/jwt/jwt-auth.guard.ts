@@ -34,7 +34,6 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = this.getRequest(context);
-
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -42,15 +41,21 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const user = await firstValueFrom(
+      const response = await firstValueFrom(
         this.authClient.send('validate_token', { token }),
       );
 
-      request.user = user;
+      if (!response.valid) {
+        throw new UnauthorizedException(response.error || 'Invalid token');
+      }
 
+      request.user = response.user;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid token');
+      if (error.name === 'TimeoutError') {
+        throw new UnauthorizedException('Authentication service timeout');
+      }
+      throw new UnauthorizedException(error.message || 'Invalid token');
     }
   }
 }

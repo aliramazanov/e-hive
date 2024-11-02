@@ -18,9 +18,12 @@ export class AuthController {
   ): Promise<{ token: string }> {
     return this.authService.signIn(authCredentialsDto);
   }
-
   @MessagePattern('validate_token')
-  async validateToken(@Payload() payload: { token: string }) {
+  async validateToken(@Payload() payload: { token: string }): Promise<{
+    valid: boolean;
+    user?: any;
+    error?: string;
+  }> {
     return this.authService.validateToken(payload);
   }
 }
