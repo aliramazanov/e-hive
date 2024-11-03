@@ -6,7 +6,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BookingController } from './booking.controller';
 import { BookingService } from './booking.service';
 import { Booking } from './entity/booking.entity';
-import { BookingRepository } from './repository/booking.repository';
 
 @Module({
   imports: [
@@ -37,7 +36,6 @@ import { BookingRepository } from './repository/booking.repository';
   ],
   controllers: [BookingController],
   providers: [
-    BookingRepository,
     BookingService,
     {
       provide: APP_GUARD,

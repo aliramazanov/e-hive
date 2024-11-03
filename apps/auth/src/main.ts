@@ -22,11 +22,11 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(3000);
 
-  console.log(`Auth service is running on port 3000`);
+  console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(`RabbitMQ connection URL: ${process.env.RABBITMQ_URL}`);
 }
 
 bootstrap().catch((error) => {
-  console.error('Failed to start auth service:', error);
+  console.error('Failed to start auth service: ', error);
   process.exit(1);
 });

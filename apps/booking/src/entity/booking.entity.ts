@@ -1,18 +1,21 @@
-import { AbstractEntity } from '@app/common';
-import { Column, Entity } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
-export class Booking extends AbstractEntity<Booking> {
+export class Booking {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @Column()
   eventId: string;
 
   @Column()
   bookerId: string;
 
-  @Column()
+  @CreateDateColumn()
   timestamp: Date;
-
-  constructor(partial: Partial<Booking>) {
-    super(partial);
-  }
 }

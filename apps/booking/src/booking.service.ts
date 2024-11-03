@@ -1,23 +1,29 @@
-import { JwtAuthGuard } from '@app/common';
-import { Injectable, Logger, UseGuards } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { Booking } from './entity/booking.entity';
-import { BookingRepository } from './repository/booking.repository';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class BookingService {
   private readonly logger = new Logger(BookingService.name);
-  constructor(private readonly bookingRepository: BookingRepository) {}
+  constructor(
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
+  ) {}
 
   async create(createBookingDto: CreateBookingDto): Promise<Booking> {
+    const { eventId, bookerId } = createBookingDto;
+
     try {
-      const booking = new Booking({
-        ...createBookingDto,
-        timestamp: new Date(),
+      const booking = this.bookingRepository.create({
+        eventId,
+        bookerId,
       });
-      return await this.bookingRepository.create(booking);
+
+      await this.bookingRepository.save(booking);
+      return booking;
     } catch (error) {
       this.logger.error(
         `Failed to create booking: ${error.message}`,
@@ -29,7 +35,11 @@ export class BookingService {
 
   async list(): Promise<Booking[]> {
     try {
-      return await this.bookingRepository.find({});
+      return await this.bookingRepository.find({
+        order: {
+          timestamp: 'DESC',
+        },
+      });
     } catch (error) {
       this.logger.error(
         `Failed to list bookings: ${error.message}`,
@@ -41,7 +51,15 @@ export class BookingService {
 
   async find(id: string): Promise<Booking> {
     try {
-      return await this.bookingRepository.findOne({ id });
+      const booking = await this.bookingRepository.findOne({
+        where: { id },
+      });
+
+      if (!booking) {
+        throw new NotFoundException(`Booking with ID "${id}" not found`);
+      }
+
+      return booking;
     } catch (error) {
       this.logger.error(
         `Failed to find booking: ${error.message}`,
@@ -56,10 +74,11 @@ export class BookingService {
     updateBookingDto: UpdateBookingDto,
   ): Promise<Booking> {
     try {
-      return await this.bookingRepository.findOneAndUpdate(
-        { id },
-        updateBookingDto,
-      );
+      const booking = await this.find(id);
+
+      Object.assign(booking, updateBookingDto);
+
+      return await this.bookingRepository.save(booking);
     } catch (error) {
       this.logger.error(
         `Failed to update booking: ${error.message}`,
@@ -71,7 +90,9 @@ export class BookingService {
 
   async remove(id: string): Promise<void> {
     try {
-      await this.bookingRepository.findOneAndDelete({ id });
+      const booking = await this.find(id);
+
+      await this.bookingRepository.remove(booking);
     } catch (error) {
       this.logger.error(
         `Failed to remove booking: ${error.message}`,
