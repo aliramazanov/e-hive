@@ -21,7 +21,7 @@ export class BookingController {
   private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createBookingDto: CreateBookingDto) {
     try {

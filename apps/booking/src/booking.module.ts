@@ -37,10 +37,10 @@ import { Booking } from './entity/booking.entity';
   controllers: [BookingController],
   providers: [
     BookingService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
   ],
 })
 export class BookingModule {}
