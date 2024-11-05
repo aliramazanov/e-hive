@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: {{ .Values.services.auth.image }}:{{ .Values.services.auth.tag }}
+          ports:
+            - containerPort: {{ .Values.services.auth.port }}
+          env:
+            - name: NODE_ENV
+              value: "development"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=8192"
+            - name: RABBITMQ_URL
+              value: {{ .Values.global.rabbitmq.url }}
+          volumeMounts:
+            - name: auth-config
+              mountPath: /usr/src/app
+      volumes:
+        - name: auth-config
+          configMap:
+            name: auth-config
