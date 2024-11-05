@@ -1,10 +1,10 @@
+import { PostgresModule, RabbitMQModule } from '@app/common';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Event } from './entity/event.entity';
 import { EventController } from './event.controller';
 import { EventService } from './event.service';
-import { Event } from '../entity/event.entity';
-import { PostgresModule, RabbitMQModule } from '@app/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [

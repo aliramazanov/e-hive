@@ -1,7 +1,6 @@
-import { JwtAuthGuard, PostgresModule, RabbitMQModule } from '@app/common';
+import { PostgresModule, RabbitMQModule } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BookingController } from './booking.controller';
 import { BookingService } from './booking.service';

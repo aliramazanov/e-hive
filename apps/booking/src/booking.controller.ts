@@ -30,6 +30,7 @@ export class BookingController {
       );
 
       const result = await this.bookingService.create(createBookingDto);
+
       this.logger.debug(
         `Booking created successfully: ${JSON.stringify(result)}`,
       );
@@ -44,13 +45,14 @@ export class BookingController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async list() {
     try {
       this.logger.debug('Listing all bookings');
 
       const bookings = await this.bookingService.list();
+
       this.logger.debug(`Found ${bookings.length} bookings`);
 
       return bookings;
@@ -63,13 +65,14 @@ export class BookingController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async find(@Param('id') id: string) {
     try {
       this.logger.debug(`Finding booking with ID: ${id}`);
 
       const booking = await this.bookingService.find(id);
+
       this.logger.debug(`Found booking: ${JSON.stringify(booking)}`);
 
       return booking;
@@ -77,7 +80,6 @@ export class BookingController {
       if (error instanceof NotFoundException) {
         throw error;
       }
-
       this.logger.error(
         `Failed to find booking: ${error.message}`,
         error.stack,
@@ -86,7 +88,7 @@ export class BookingController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -98,6 +100,7 @@ export class BookingController {
       );
 
       const booking = await this.bookingService.update(id, updateBookingDto);
+
       this.logger.debug(`Updated booking: ${JSON.stringify(booking)}`);
 
       return booking;
@@ -105,7 +108,6 @@ export class BookingController {
       if (error instanceof NotFoundException) {
         throw error;
       }
-
       this.logger.error(
         `Failed to update booking: ${error.message}`,
         error.stack,
@@ -114,13 +116,14 @@ export class BookingController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
       this.logger.debug(`Deleting booking with ID: ${id}`);
 
       await this.bookingService.remove(id);
+
       this.logger.debug(`Successfully deleted booking ${id}`);
 
       return { message: 'Booking deleted successfully' };
@@ -128,7 +131,6 @@ export class BookingController {
       if (error instanceof NotFoundException) {
         throw error;
       }
-
       this.logger.error(
         `Failed to delete booking: ${error.message}`,
         error.stack,

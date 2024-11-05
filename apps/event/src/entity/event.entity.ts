@@ -23,7 +23,7 @@ export class Event {
   endDate: Date;
 
   @Column()
-  type: string;
+  eventType: string;
 
   @CreateDateColumn()
   timestamp: Date;
