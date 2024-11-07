@@ -115,6 +115,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/jwt/tsconfig.lib.json"
       }
+    },
+    "notification": {
+      "type": "application",
+      "root": "apps/notification",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification/tsconfig.app.json"
+      }
+    },
+    "file": {
+      "type": "application",
+      "root": "apps/file",
+      "entryFile": "main",
+      "sourceRoot": "apps/file/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/file/tsconfig.app.json"
+      }
     }
   },
   "monorepo": true,
