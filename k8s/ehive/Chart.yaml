@@ -1,5 +1,0 @@
-apiVersion: v2
-name: e-hive
-description: A Helm chart for managing microservices of E-Hive Project
-version: 0.1.0
-appVersion: "1.0.0"
