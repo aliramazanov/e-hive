@@ -52,10 +52,3 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-      # volumes:
-      #   - name: src
-      #     hostPath:
-      #       path: ./
-      #       type: Directory
-      #   - name: node-modules
-      #     emptyDir: {}
