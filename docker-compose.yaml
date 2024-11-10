@@ -1,88 +1,11 @@
 services:
-  auth:
-    build:
-      context: .
-      dockerfile: ./apps/auth/Dockerfile
-      target: development
-    command: sh -c "pnpm install && pnpm run start:dev auth"
-    env_file:
-      - ./apps/auth/jwt.config.env
-      - ./libs/common/src/postgres/postgres.config.env
-    ports:
-      - '3000:3000'
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    environment:
-      - NODE_ENV=development
-      - NODE_OPTIONS=--max-old-space-size=8192
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    networks:
-      - app-network
-
-  event:
-    build:
-      context: .
-      dockerfile: ./apps/event/Dockerfile
-      target: development
-    command: sh -c "pnpm install && pnpm run start:dev event"
-    env_file:
-      - ./libs/common/src/postgres/postgres.config.env
-    ports:
-      - "3001:3000"
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    environment:
-      - NODE_ENV=development
-      - NODE_OPTIONS=--max-old-space-size=8192
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    networks:
-      - app-network
-
-  booking:
-    build:
-      context: .
-      dockerfile: ./apps/booking/Dockerfile
-      target: development
-    command: sh -c "pnpm install && pnpm run start:dev booking"
-    env_file:
-      - ./libs/common/src/postgres/postgres.config.env
-    ports:
-      - "3002:3000"
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    environment:
-      - NODE_ENV=development
-      - NODE_OPTIONS=--max-old-space-size=8192
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-    networks:
-      - app-network
-
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - '5672:5672'
       - '15672:15672'
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+    env_file:
+      - rabbitmq.config.env
     networks:
       - app-network
     healthcheck:
@@ -97,7 +20,7 @@ services:
   postgres:
     image: postgres:latest
     env_file:
-      - ./libs/common/src/postgres/postgres.config.env
+      - postgres.config.env
     ports:
       - '5433:5432'
     volumes:
@@ -111,21 +34,9 @@ services:
       retries: 5
       start_period: 20s
 
-    
-  nginx:
-    image: nginx
-    volumes:
-      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-      - "80:80"
-    depends_on:
-      - auth
-      - booking
-      - event
-
 volumes:
-  postgres_data:
   rabbitmq_data:
+  postgres_data:
 
 networks:
   app-network:

@@ -18,54 +18,10 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/common": [
-        "libs/common/src"
-      ],
-      "@app/common/*": [
-        "libs/common/src/*"
-      ],
-      "@app/shared": [
-        "libs/shared/src"
-      ],
-      "@app/shared/*": [
-        "libs/shared/src/*"
-      ],
-      "@app/authentication": [
-        "libs/authentication/src"
-      ],
-      "@app/authentication/*": [
-        "libs/authentication/src/*"
-      ],
-      "@app/postgres": [
-        "libs/postgres/src"
-      ],
-      "@app/postgres/*": [
-        "libs/postgres/src/*"
-      ],
-      "@app/rabbitmq": [
-        "libs/rabbitmq/src"
-      ],
-      "@app/rabbitmq/*": [
-        "libs/rabbitmq/src/*"
-      ],
-      "@app/redis": [
-        "libs/redis/src"
-      ],
-      "@app/redis/*": [
-        "libs/redis/src/*"
-      ],
-      "@app/mongo": [
-        "libs/mongo/src"
-      ],
-      "@app/mongo/*": [
-        "libs/mongo/src/*"
-      ],
-      "@app/jwt": [
-        "libs/jwt/src"
-      ],
-      "@app/jwt/*": [
-        "libs/jwt/src/*"
-      ]
+      "@app/postgres": ["libs/postgres/src"],
+      "@app/postgres/*": ["libs/postgres/src/*"],
+      "@app/common": ["libs/common/src"],
+      "@app/common/*": ["libs/common/src/*"]
     }
   }
 }

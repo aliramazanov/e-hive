@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-service-srv
+spec:
+  selector:
+    app: event-service
+  ports:
+    - name: event-service
+      protocol: TCP
+      port: 3002
+      targetPort: 3002
+  type: ClusterIP

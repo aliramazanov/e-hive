@@ -41,13 +41,12 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
-postgres.config.env
-mongo.config.env
-jwt.config.env
+*.config.env
 
 # temp directory
 .temp
 .tmp
+.pnpm-store
 
 # Runtime data
 pids

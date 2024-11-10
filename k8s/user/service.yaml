@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-srv
+spec:
+  selector:
+    app: user-service
+  ports:
+    - name: user-service
+      protocol: TCP
+      port: 3004
+      targetPort: 3004
+  type: ClusterIP

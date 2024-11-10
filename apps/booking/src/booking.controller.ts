@@ -1,4 +1,3 @@
-import { JwtAuthGuard } from '@app/common';
 import {
   Body,
   Controller,
@@ -10,7 +9,6 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -21,7 +19,6 @@ export class BookingController {
   private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createBookingDto: CreateBookingDto) {
     try {
@@ -45,7 +42,6 @@ export class BookingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async list() {
     try {
@@ -65,7 +61,6 @@ export class BookingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async find(@Param('id') id: string) {
     try {
@@ -88,7 +83,6 @@ export class BookingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -116,7 +110,6 @@ export class BookingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {

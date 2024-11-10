@@ -9,19 +9,16 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
-import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
-import { JwtAuthGuard } from '@app/common';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { EventService } from './event.service';
 
 @Controller('event')
 export class EventController {
   private readonly logger = new Logger(EventController.name);
   constructor(private readonly eventService: EventService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createEventDto: CreateEventDto) {
     try {
@@ -45,7 +42,6 @@ export class EventController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async list() {
     try {
@@ -62,7 +58,6 @@ export class EventController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async find(@Param('id') id: string) {
     try {
@@ -82,7 +77,6 @@ export class EventController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -110,7 +104,6 @@ export class EventController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
