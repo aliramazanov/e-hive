@@ -3,7 +3,8 @@ import { EventModule } from './event.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(EventModule);
-  await app.listen(3002);
+  app.enableCors();
+  await app.listen(3002, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 

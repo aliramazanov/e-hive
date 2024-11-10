@@ -3,7 +3,8 @@ import { BookingModule } from './booking.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(BookingModule);
-  await app.listen(3001);
+  app.enableCors();
+  await app.listen(3001, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 

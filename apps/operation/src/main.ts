@@ -3,7 +3,8 @@ import { OperationModule } from './operation.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(OperationModule);
-  await app.listen(3003);
+  app.enableCors();
+  await app.listen(3003, '0.0.0.0');  
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
