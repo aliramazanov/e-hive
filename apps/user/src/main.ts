@@ -4,7 +4,7 @@ import { UserModule } from './user.module';
 async function bootstrap() {
   const app = await NestFactory.create(UserModule);
   app.enableCors();
-  await app.listen(3004, '0.0.0.0');  
+  await app.listen(3004, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
