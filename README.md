@@ -3,7 +3,9 @@
   <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="110" alt="Kubernetes Logo">
 </p>
 
-# E-Hive NestJS Microservices with Kubernetes
+# E-Hive
+
+## NestJS Microservices with Kubernetes
 
 ## Architecture
 
