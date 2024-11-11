@@ -28,22 +28,14 @@
 
 ## Project Structure
 
-📁 Root/
-├── apps/               
-│   ├── auth/         
-│   ├── booking/       
-│   ├── event/        
-│   ├── operation/     
-│   └── user/          
-├── libs/              
-│   ├── postgres/     
-│   └── rabbitmq/      
-└── k8s/               
-    ├── auth/          
-    ├── booking/       
-    ├── event/         
-    ├── nginx/         
-    ├── operation/     
-    ├── postgres/      
-    ├── rabbitmq/      
-    └── user/
+├── apps/
+│   ├── auth/            # Authentication service
+│   ├── user/            # User management service
+│   ├── event/           # Event management service
+│   ├── booking/         # Booking service
+│   └── operation/       # Operations service
+├── libs/
+│   ├── postgres/        # Shared PostgreSQL module
+│   └── rabbitmq/        # Shared RabbitMQ module
+├── k8s/                 # Kubernetes configurations
+└── skaffold.yaml        # Skaffold configuration
