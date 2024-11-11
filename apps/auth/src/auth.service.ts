@@ -1,5 +1,10 @@
 import { RabbitMQService } from '@app/rabbitmq';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -30,44 +35,76 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
+    try {
+      const payload = { email: user.email, sub: user.id };
 
-    const accessToken = this.jwtService.sign(payload);
+      const accessToken = this.jwtService.sign(payload);
+      const refreshToken = this.jwtService.sign(payload, {
+        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+        expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION'),
+      });
 
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-      expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION'),
-    });
+      const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-    await this.authRepository.update(user.id, {
-      refreshToken: await bcrypt.hash(refreshToken, 10),
-    });
+      await this.authRepository
+        .update(user.id, {
+          refreshToken: hashedRefreshToken,
+        })
+        .catch((error) => {
+          this.logger.error(`Failed to update refresh token: ${error.message}`);
+          throw new Error('Login failed');
+        });
 
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-      },
-    };
+      return {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      };
+    } catch (error) {
+      this.logger.error(`Login failed: ${error.message}`);
+      throw error;
+    }
   }
 
   async register(createUserDto: { email: string; password: string }) {
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    try {
+      const existingAuth = await this.authRepository.findOne({
+        where: { email: createUserDto.email },
+      });
 
-    const userId = await this.rmqService.send('create_user', {
-      email: createUserDto.email,
-    });
+      if (existingAuth) {
+        throw new ConflictException('Email already registered');
+      }
 
-    const auth = this.authRepository.create({
-      email: createUserDto.email,
-      password: hashedPassword,
-      userId,
-    });
+      const userId = await this.rmqService.send('create_user', {
+        email: createUserDto.email,
+      });
 
-    await this.authRepository.save(auth);
-    return this.login(auth);
+      if (!userId) {
+        throw new Error('Failed to create user');
+      }
+
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+      const auth = this.authRepository.create({
+        email: createUserDto.email,
+        password: hashedPassword,
+        userId,
+      });
+
+      await this.authRepository.save(auth);
+      return this.login(auth);
+    } catch (error) {
+      if (error.message !== 'Email already registered') {
+        await this.rmqService.publish('user.registration.failed', {
+          email: createUserDto.email,
+        });
+      }
+      throw error;
+    }
   }
 
   async refreshToken(refreshToken: string) {

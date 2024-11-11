@@ -11,8 +11,22 @@ export class UserService {
   ) {}
 
   async createUser(email: string): Promise<User> {
-    const user = this.userRepository.create({ email });
-    return this.userRepository.save(user);
+    return this.userRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        const existingUser = await transactionalEntityManager
+          .createQueryBuilder(User, 'user')
+          .setLock('pessimistic_write')
+          .where('user.email = :email', { email })
+          .getOne();
+
+        if (existingUser) {
+          throw new Error('User already exists');
+        }
+
+        const user = this.userRepository.create({ email });
+        return transactionalEntityManager.save(user);
+      },
+    );
   }
 
   async findByEmail(email: string): Promise<User> {
@@ -21,5 +35,9 @@ export class UserService {
 
   async findById(id: string): Promise<User> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  async removeUser(id: string): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }

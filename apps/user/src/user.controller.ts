@@ -9,11 +9,32 @@ export class UserController {
 
   @MessagePattern('create_user')
   async createUser(data: { email: string }) {
-    this.logger.debug(
-      `Received request to create user with email: ${data.email}`,
-    );
-    const user = await this.userService.createUser(data.email);
-    return user.id;
+    try {
+      const existingUser = await this.userService.findByEmail(data.email);
+      if (existingUser) {
+        throw new Error('User already exists');
+      }
+
+      const user = await this.userService.createUser(data.email);
+      return user.id;
+    } catch (error) {
+      this.logger.error(`Failed to create user: ${error.message}`);
+      throw error;
+    }
+  }
+
+  @MessagePattern('user.registration.failed')
+  async handleRegistrationFailure(data: { email: string }) {
+    try {
+      const user = await this.userService.findByEmail(data.email);
+      if (user) {
+        await this.userService.removeUser(user.id);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to handle registration failure: ${error.message}`,
+      );
+    }
   }
 
   @MessagePattern('get_user')

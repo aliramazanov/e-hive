@@ -5,6 +5,7 @@ import { firstValueFrom, timeout } from 'rxjs';
 @Injectable()
 export class RabbitMQService {
   private readonly logger = new Logger(RabbitMQService.name);
+  private readonly maxRetries = 3;
 
   constructor(
     @Inject('RABBITMQ_CLIENT')
@@ -12,6 +13,8 @@ export class RabbitMQService {
   ) {}
 
   async send(pattern: string, data: any): Promise<any> {
+    let retries = 0;
+
     try {
       this.logger.debug(
         `Sending message to pattern: ${pattern} with data:`,
@@ -25,8 +28,33 @@ export class RabbitMQService {
       this.logger.debug(`Received response from pattern ${pattern}:`, response);
       return response;
     } catch (error) {
+      retries++;
+
       this.logger.error(
-        `Failed to send message to pattern ${pattern}: ${error.message}`,
+        `Attempt ${retries}/${this.maxRetries} failed for pattern ${pattern}: ${error.message}`,
+      );
+
+      if (retries === this.maxRetries) {
+        throw error;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
+    }
+  }
+
+  async publish(pattern: string, data: any): Promise<void> {
+    try {
+      this.logger.debug(
+        `Publishing event to pattern: ${pattern} with data:`,
+        data,
+      );
+
+      this.client.emit(pattern, data);
+
+      this.logger.debug(`Successfully published event to pattern: ${pattern}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to publish event to pattern ${pattern}: ${error.message}`,
         error.stack,
       );
       throw error;
