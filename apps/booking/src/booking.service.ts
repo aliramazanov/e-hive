@@ -1,3 +1,4 @@
+import { RabbitMQService } from '@app/rabbitmq';
 import {
   BadRequestException,
   Injectable,
@@ -7,8 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Booking } from './entity/booking.entity';
-import { RabbitMQService } from '@app/rabbitmq';
-import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class BookingService {
@@ -27,10 +26,9 @@ export class BookingService {
 
     try {
       this.logger.debug(`Validating user with ID: ${userId}`);
-
-      const userResponse = await firstValueFrom(
-        await this.rabbitMQService.send('get_user', { id: userId }),
-      );
+      const userResponse = await this.rabbitMQService.send('get_user', {
+        id: userId,
+      });
 
       if (!userResponse) {
         this.logger.error(`User not found with ID: ${userId}`);
@@ -43,15 +41,10 @@ export class BookingService {
         `User validation failed: ${error.message}`,
         error.stack,
       );
-
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
       throw new BadRequestException({
         message: 'Failed to validate user',
         error: error.message,
-        details: 'Error occurred while communicating with user service',
+        details: 'Error occurred while processing user validation',
       });
     }
 
@@ -59,9 +52,9 @@ export class BookingService {
       this.logger.debug(`Validating events: ${eventIds.join(', ')}`);
 
       const eventPromises = eventIds.map(async (eventId) => {
-        const response = await firstValueFrom(
-          await this.rabbitMQService.send('get_event', eventId),
-        );
+        const response = await this.rabbitMQService.send('get_event', {
+          id: eventId,
+        });
 
         if (!response) {
           this.logger.error(`Event not found with ID: ${eventId}`);
@@ -79,14 +72,10 @@ export class BookingService {
         error.stack,
       );
 
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
       throw new BadRequestException({
         message: 'Failed to validate events',
         error: error.message,
-        details: 'Error occurred while communicating with event service',
+        details: 'Error occurred while processing event validation',
       });
     }
 
@@ -102,9 +91,26 @@ export class BookingService {
       });
 
       const savedBooking = await this.bookingRepository.save(booking);
+
       this.logger.debug(
         `Booking created successfully with ID: ${savedBooking.id}`,
       );
+
+      try {
+        await Promise.all(
+          eventIds.map(async (eventId) =>
+            this.rabbitMQService.send('booking_created', {
+              eventId,
+              bookingId: savedBooking.id,
+              userId,
+            }),
+          ),
+        );
+      } catch (notificationError) {
+        this.logger.warn(
+          `Failed to notify event service about booking: ${notificationError.message}`,
+        );
+      }
 
       return savedBooking;
     } catch (error) {
