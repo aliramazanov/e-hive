@@ -1,18 +1,18 @@
 import { PostgresModule } from '@app/postgres';
-import { RabbitMQModule, RabbitMQService } from '@app/rabbitmq';
+import { RabbitMQModule } from '@app/rabbitmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import * as Joi from 'joi';
+import * as path from 'path';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Auth } from './entity/auth.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
-import * as path from 'path';
 
 @Module({
   imports: [
@@ -58,4 +58,5 @@ import * as path from 'path';
     },
   ],
 })
+
 export class AuthModule {}

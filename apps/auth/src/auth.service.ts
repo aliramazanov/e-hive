@@ -20,15 +20,18 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const auth = await this.authRepository.findOne({ where: { email } });
+
     if (auth && (await bcrypt.compare(password, auth.password))) {
       const { password, ...result } = auth;
       return result;
     }
+
     return null;
   }
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id };
+    
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('REFRESH_TOKEN_SECRET'),

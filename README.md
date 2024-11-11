@@ -7,16 +7,14 @@
 
 ## NestJS Microservices with Kubernetes
 
-## Architecture
+## Architecture:
+- Auth Service: Handles authentication
+- User Service: Manages user profiles and data
+- Event Service: Event creation and management
+- Booking Service: Handles booking operations
+- Operation Service: Helping with additional services
 
-- 🔐 Auth Service: Handles authentication
-- 👤 User Service: Manages user profiles and data
-- 📅 Event Service: Event creation and management
-- 📚 Booking Service: Handles booking operations
-- ⚙️ Operation Service: Helping with additional services
-
-## Tech Stack
-
+## Tech Stack:
 - Built On: Node.js
 - Framework: NestJS
 - ORM: TypeORM

@@ -25,7 +25,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(3000, '0.0.0.0');
 
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Auth service is running on: ${await app.getUrl()}`);
 }
 
 bootstrap().catch((error) => {
