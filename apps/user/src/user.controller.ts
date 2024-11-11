@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { UserService } from './user.service';
 
-@Controller('api/user')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  getHello(): string {
-    return this.userService.getHello();
+  @MessagePattern('create_user')
+  async createUser(data: { email: string }) {
+    const user = await this.userService.createUser(data.email);
+    return user.id;
   }
 }

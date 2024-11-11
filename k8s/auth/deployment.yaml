@@ -43,6 +43,8 @@ spec:
                 name: rabbitmq-config
             - secretRef:
                 name: rabbitmq-secret
+            - secretRef:
+                name: jwt-secret
           command: ["sh", "-c"]
           args: ["pnpm install && pnpm run start:dev auth"]
           resources:
