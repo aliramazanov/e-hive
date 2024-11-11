@@ -28,22 +28,22 @@
 
 ## Project Structure
 
-.
-├── apps/
-│ ├── auth/ # Authentication microservice
-│ ├── booking/ # Booking management
-│ ├── event/ # Event management
-│ ├── operation/ # Operations service
-│ └── user/ # User management
-├── libs/
-│ ├── postgres/ # Shared PostgreSQL module
-│ └── rabbitmq/ # Shared RabbitMQ module
-└── k8s/ # Kubernetes configurations
-├── auth/
-├── booking/
-├── event/
-├── nginx/
-├── operation/
-├── postgres/
-├── rabbitmq/
-└── user/
+📁 Root/
+├── apps/               
+│   ├── auth/         
+│   ├── booking/       
+│   ├── event/        
+│   ├── operation/     
+│   └── user/          
+├── libs/              
+│   ├── postgres/     
+│   └── rabbitmq/      
+└── k8s/               
+    ├── auth/          
+    ├── booking/       
+    ├── event/         
+    ├── nginx/         
+    ├── operation/     
+    ├── postgres/      
+    ├── rabbitmq/      
+    └── user/
