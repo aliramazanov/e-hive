@@ -1,0 +1,30 @@
+{
+  "id": "ehive-environment-id",
+  "name": "E-Hive Local Environment",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "random_email",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ]
+}
