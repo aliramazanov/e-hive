@@ -14,7 +14,7 @@ import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 
-@Controller('api/booking')
+@Controller('booking')
 export class BookingController {
   private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}

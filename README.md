@@ -25,3 +25,8 @@
 - Infrastructure: NGINX Ingress
 - Dev Tools: Skaffold
 - Authentication: JWT with Passport
+
+
+## Note on Secret Files
+⚠️ A quick note: The secret files in this repository are provided for being an example only.
+⚠️ In a real production environment, you should never commit actual secret files to Git
