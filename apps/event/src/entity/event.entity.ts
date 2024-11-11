@@ -5,26 +5,29 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('event')
 export class Event {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  name: string;
+  title: string;
+
+  @Column()
+  description: string;
+
+  @Column()
+  date: Date;
 
   @Column()
   location: string;
 
   @Column()
-  startDate: Date;
+  capacity: number;
 
-  @Column()
-  endDate: Date;
+  @Column({ default: true })
+  isActive: boolean;
 
-  @Column()
-  eventType: string;
-
-  @CreateDateColumn()
-  timestamp: Date;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

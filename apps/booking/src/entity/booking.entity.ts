@@ -1,21 +1,22 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('booking')
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  eventId: string;
+  userId: string;
 
-  @Column()
-  bookerId: string;
+  @Column('text', { array: true })
+  eventIds: string[];
 
-  @CreateDateColumn()
-  timestamp: Date;
+  @Column({ default: 'pending' })
+  status: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  updatedAt: Date;
 }

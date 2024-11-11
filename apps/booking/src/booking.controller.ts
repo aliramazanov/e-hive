@@ -1,134 +1,53 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
+  HttpCode,
+  HttpStatus,
   Param,
-  Patch,
   Post,
 } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Controller('booking')
 export class BookingController {
-  private readonly logger = new Logger(BookingController.name);
   constructor(private readonly bookingService: BookingService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() createBookingDto: CreateBookingDto) {
-    try {
-      this.logger.debug(
-        `Received create booking request: ${JSON.stringify(createBookingDto)}`,
-      );
-
-      const result = await this.bookingService.create(createBookingDto);
-
-      this.logger.debug(
-        `Booking created successfully: ${JSON.stringify(result)}`,
-      );
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to create booking: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to create booking');
-    }
+    return this.bookingService.createBooking(
+      createBookingDto.userId,
+      createBookingDto.eventIds,
+    );
   }
 
-  @Get()
-  async list() {
-    try {
-      this.logger.debug('Listing all bookings');
-
-      const bookings = await this.bookingService.list();
-
-      this.logger.debug(`Found ${bookings.length} bookings`);
-
-      return bookings;
-    } catch (error) {
-      this.logger.error(
-        `Failed to list bookings: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to list bookings');
-    }
+  @Get('user/:userId')
+  @HttpCode(HttpStatus.OK)
+  async getUserBookingsHttp(@Param('userId') userId: string) {
+    return this.bookingService.findByUserId(userId);
   }
 
   @Get(':id')
-  async find(@Param('id') id: string) {
-    try {
-      this.logger.debug(`Finding booking with ID: ${id}`);
-
-      const booking = await this.bookingService.find(id);
-
-      this.logger.debug(`Found booking: ${JSON.stringify(booking)}`);
-
-      return booking;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(
-        `Failed to find booking: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to find booking');
-    }
+  @HttpCode(HttpStatus.OK)
+  async getBookingHttp(@Param('id') id: string) {
+    return this.bookingService.findById(id);
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateBookingDto: UpdateBookingDto,
-  ) {
-    try {
-      this.logger.debug(
-        `Updating booking ${id} with data: ${JSON.stringify(updateBookingDto)}`,
-      );
-
-      const booking = await this.bookingService.update(id, updateBookingDto);
-
-      this.logger.debug(`Updated booking: ${JSON.stringify(booking)}`);
-
-      return booking;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(
-        `Failed to update booking: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to update booking');
-    }
+  @MessagePattern('create_booking')
+  async createBookingMessage(data: CreateBookingDto) {
+    return this.bookingService.createBooking(data.userId, data.eventIds);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    try {
-      this.logger.debug(`Deleting booking with ID: ${id}`);
+  @MessagePattern('get_user_bookings')
+  async getUserBookingsMessage(userId: string) {
+    return this.bookingService.findByUserId(userId);
+  }
 
-      await this.bookingService.remove(id);
-
-      this.logger.debug(`Successfully deleted booking ${id}`);
-
-      return { message: 'Booking deleted successfully' };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(
-        `Failed to delete booking: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to delete booking');
-    }
+  @MessagePattern('get_booking')
+  async getBookingMessage(id: string) {
+    return this.bookingService.findById(id);
   }
 }

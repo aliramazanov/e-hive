@@ -3,126 +3,76 @@ import {
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
+  HttpCode,
+  HttpStatus,
   Param,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventService } from './event.service';
 
-@Controller('api/event')
+@Controller('event')
 export class EventController {
-  private readonly logger = new Logger(EventController.name);
   constructor(private readonly eventService: EventService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() createEventDto: CreateEventDto) {
-    try {
-      this.logger.debug(
-        `Received create event request: ${JSON.stringify(createEventDto)}`,
-      );
-
-      const result = await this.eventService.create(createEventDto);
-
-      this.logger.debug(
-        `Event created successfully: ${JSON.stringify(result)}`,
-      );
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to create event: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to create event');
-    }
+    return this.eventService.createEvent(createEventDto);
   }
 
   @Get()
-  async list() {
-    try {
-      this.logger.debug('Listing all events');
-
-      const events = await this.eventService.list();
-
-      this.logger.debug(`Found ${events.length} events`);
-
-      return events;
-    } catch (error) {
-      this.logger.error(`Failed to list events: ${error.message}`, error.stack);
-      throw new InternalServerErrorException('Failed to list events');
-    }
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    return this.eventService.findAll();
   }
 
   @Get(':id')
-  async find(@Param('id') id: string) {
-    try {
-      this.logger.debug(`Finding event with ID: ${id}`);
-
-      const event = await this.eventService.find(id);
-
-      this.logger.debug(`Found event: ${JSON.stringify(event)}`);
-
-      return event;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(`Failed to find event: ${error.message}`, error.stack);
-      throw new InternalServerErrorException('Failed to find event');
-    }
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id') id: string) {
+    return this.eventService.findById(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
   async update(
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    try {
-      this.logger.debug(
-        `Updating event ${id} with data: ${JSON.stringify(updateEventDto)}`,
-      );
-
-      const event = await this.eventService.update(id, updateEventDto);
-
-      this.logger.debug(`Updated event: ${JSON.stringify(event)}`);
-
-      return event;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(
-        `Failed to update event: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to update event');
-    }
+    return this.eventService.update(id, updateEventDto);
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
-    try {
-      this.logger.debug(`Deleting event with ID: ${id}`);
+    await this.eventService.remove(id);
+  }
 
-      await this.eventService.remove(id);
+  @MessagePattern('create_event')
+  async createEvent(eventData: CreateEventDto) {
+    return this.eventService.createEvent(eventData);
+  }
 
-      this.logger.debug(`Successfully deleted event ${id}`);
+  @MessagePattern('get_event')
+  async getEvent(id: string) {
+    return this.eventService.findById(id);
+  }
 
-      return { message: 'event deleted successfully' };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error(
-        `Failed to delete event: ${error.message}`,
-        error.stack,
-      );
-      throw new InternalServerErrorException('Failed to delete event');
-    }
+  @MessagePattern('get_all_events')
+  async getAllEvents() {
+    return this.eventService.findAll();
+  }
+
+  @MessagePattern('update_event')
+  async updateEvent(data: { id: string; updateEventDto: UpdateEventDto }) {
+    return this.eventService.update(data.id, data.updateEventDto);
+  }
+
+  @MessagePattern('delete_event')
+  async deleteEvent(id: string) {
+    return this.eventService.remove(id);
   }
 }

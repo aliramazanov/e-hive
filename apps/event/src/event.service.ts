@@ -1,102 +1,38 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { Event } from './entity/event.entity';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventService {
-  private readonly logger = new Logger(EventService.name);
-
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
   ) {}
 
-  async create(createEventDto: CreateEventDto): Promise<Event> {
-    const { name, location, startDate, endDate, eventType } = createEventDto;
-
-    try {
-      const event = this.eventRepository.create({
-        name,
-        location,
-        startDate,
-        endDate,
-        eventType,
-      });
-
-      await this.eventRepository.save(event);
-      return event;
-    } catch (error) {
-      this.logger.error(
-        `Failed to create event: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+  async createEvent(eventData: Partial<Event>): Promise<Event> {
+    const event = this.eventRepository.create(eventData);
+    return this.eventRepository.save(event);
   }
 
-  async list(): Promise<Event[]> {
-    try {
-      return await this.eventRepository.find({
-        order: {
-          timestamp: 'DESC',
-        },
-      });
-    } catch (error) {
-      this.logger.error(
-        `Failed to list bookings: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+  async findById(id: string): Promise<Event> {
+    return this.eventRepository.findOne({ where: { id } });
   }
 
-  async find(id: string): Promise<Event> {
-    try {
-      const event = await this.eventRepository.findOne({
-        where: { id },
-      });
-
-      if (!event) {
-        throw new NotFoundException(`Event with ID "${id}" not found`);
-      }
-
-      return event;
-    } catch (error) {
-      this.logger.error(`Failed to find event: ${error.message}`, error.stack);
-      throw error;
-    }
+  async findAll(): Promise<Event[]> {
+    return this.eventRepository.find();
   }
 
   async update(id: string, updateEventDto: UpdateEventDto): Promise<Event> {
-    try {
-      const event = await this.find(id);
-
-      Object.assign(event, updateEventDto);
-
-      return await this.eventRepository.save(event);
-    } catch (error) {
-      this.logger.error(
-        `Failed to update event: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+    const event = await this.findById(id);
+    const updatedEvent = this.eventRepository.merge(event, updateEventDto);
+    return this.eventRepository.save(updatedEvent);
   }
 
   async remove(id: string): Promise<void> {
-    try {
-      const event = await this.find(id);
-
-      await this.eventRepository.remove(event);
-    } catch (error) {
-      this.logger.error(
-        `Failed to remove event: ${error.message}`,
-        error.stack,
-      );
-      throw error;
-    }
+    const event = await this.findById(id);
+    await this.eventRepository.remove(event);
   }
+
 }
