@@ -15,30 +15,35 @@ export class RabbitMQService {
   async send(pattern: string, data: any): Promise<any> {
     let retries = 0;
 
-    try {
-      this.logger.debug(
-        `Sending message to pattern: ${pattern} with data:`,
-        data,
-      );
+    while (retries < this.maxRetries) {
+      try {
+        this.logger.debug(
+          `Sending message to pattern: ${pattern} with data:`,
+          data,
+        );
 
-      const response = await firstValueFrom(
-        this.client.send(pattern, data).pipe(timeout(5000)),
-      );
+        const response = await firstValueFrom(
+          this.client.send(pattern, data).pipe(timeout(5000)),
+        );
 
-      this.logger.debug(`Received response from pattern ${pattern}:`, response);
-      return response;
-    } catch (error) {
-      retries++;
+        this.logger.debug(
+          `Received response from pattern ${pattern}:`,
+          response,
+        );
+        return response;
+      } catch (error) {
+        retries++;
 
-      this.logger.error(
-        `Attempt ${retries}/${this.maxRetries} failed for pattern ${pattern}: ${error.message}`,
-      );
+        this.logger.error(
+          `Attempt ${retries}/${this.maxRetries} failed for pattern ${pattern}: ${error.message}`,
+        );
 
-      if (retries === this.maxRetries) {
-        throw error;
+        if (retries === this.maxRetries) {
+          throw error;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
       }
-
-      await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
     }
   }
 
