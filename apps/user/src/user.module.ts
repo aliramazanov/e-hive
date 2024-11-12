@@ -13,7 +13,6 @@ import { RabbitMQModule } from '@app/rabbitmq';
     }),
     PostgresModule,
     PostgresModule.forFeature([User]),
-    RabbitMQModule.register('microservices.user.queue'),
     RabbitMQModule.register('event_queue'),
   ],
   controllers: [UserController],

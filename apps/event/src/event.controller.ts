@@ -24,40 +24,104 @@ export class EventController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createEventDto: CreateEventDto) {
-    return this.eventService.createEvent(createEventDto);
+    this.logger.log(
+      `Creating new event with data: ${JSON.stringify(createEventDto)}`,
+    );
+    try {
+      const result = await this.eventService.createEvent(createEventDto);
+      this.logger.log(`Successfully created event with ID: ${result.id}`);
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create event: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @MessagePattern('create_event')
   async createEventMessagePattern(eventData: CreateEventDto) {
-    return this.eventService.createEvent(eventData);
+    this.logger.log(
+      `Received create_event message with data: ${JSON.stringify(eventData)}`,
+    );
+    try {
+      const result = await this.eventService.createEvent(eventData);
+      this.logger.log(
+        `Successfully created event via message pattern. Event ID: ${result.id}`,
+      );
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create event via message pattern: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return this.eventService.findAll();
+    this.logger.log('Retrieving all events');
+    try {
+      const events = await this.eventService.findAll();
+      this.logger.log(`Retrieved ${events.length} events`);
+      return events;
+    } catch (error) {
+      this.logger.error(
+        `Failed to retrieve events: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @MessagePattern('get_all_events')
   async getAllEventsMessagePattern() {
-    return this.eventService.findAll();
+    this.logger.log('Received get_all_events message');
+    try {
+      const events = await this.eventService.findAll();
+      this.logger.log(`Retrieved ${events.length} events via message pattern`);
+      return events;
+    } catch (error) {
+      this.logger.error(
+        `Failed to retrieve events via message pattern: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id') id: string) {
-    return this.eventService.findById(id);
+    this.logger.log(`Retrieving event with ID: ${id}`);
+    try {
+      const event = await this.eventService.findById(id);
+      this.logger.log(`Retrieved event with ID: ${id}`);
+      return event;
+    } catch (error) {
+      this.logger.error(
+        `Failed to retrieve event ${id}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @MessagePattern('event.get')
   async getEventMessagePattern(@Payload() id: string) {
-    this.logger.debug(`Received event.get request for ID: ${id}`);
+    this.logger.log(`Received event.get message for ID: ${id}`);
     try {
       const event = await this.eventService.findById(id);
-      this.logger.debug(`Found event for ID ${id}:`, event);
+      this.logger.log(`Retrieved event with ID ${id} via message pattern`);
       return event;
     } catch (error) {
-      this.logger.error(`Error processing event.get for ID ${id}:`, error);
+      this.logger.error(
+        `Failed to retrieve event ${id} via message pattern: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -68,7 +132,20 @@ export class EventController {
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    return this.eventService.update(id, updateEventDto);
+    this.logger.log(
+      `Updating event ${id} with data: ${JSON.stringify(updateEventDto)}`,
+    );
+    try {
+      const result = await this.eventService.update(id, updateEventDto);
+      this.logger.log(`Successfully updated event ${id}`);
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Failed to update event ${id}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @MessagePattern('update_event')
@@ -76,17 +153,55 @@ export class EventController {
     id: string;
     updateEventDto: UpdateEventDto;
   }) {
-    return this.eventService.update(data.id, data.updateEventDto);
+    this.logger.log(
+      `Received update_event message for ID ${data.id} with data: ${JSON.stringify(data.updateEventDto)}`,
+    );
+    try {
+      const result = await this.eventService.update(
+        data.id,
+        data.updateEventDto,
+      );
+      this.logger.log(
+        `Successfully updated event ${data.id} via message pattern`,
+      );
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Failed to update event ${data.id} via message pattern: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
-    await this.eventService.remove(id);
+    this.logger.log(`Deleting event with ID: ${id}`);
+    try {
+      await this.eventService.remove(id);
+      this.logger.log(`Successfully deleted event ${id}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete event ${id}: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
   @MessagePattern('delete_event')
   async deleteEventMessagePattern(id: string) {
-    return this.eventService.remove(id);
+    this.logger.log(`Received delete_event message for ID: ${id}`);
+    try {
+      await this.eventService.remove(id);
+      this.logger.log(`Successfully deleted event ${id} via message pattern`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete event ${id} via message pattern: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 }

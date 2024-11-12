@@ -13,7 +13,6 @@ import { RabbitMQModule } from '@app/rabbitmq';
     }),
     PostgresModule,
     PostgresModule.forFeature([Event]),
-    RabbitMQModule.register('event_queue'),
     RabbitMQModule.register('booking_queue'),
   ],
   controllers: [EventController],

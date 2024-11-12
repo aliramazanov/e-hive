@@ -9,16 +9,10 @@ export class RabbitMQService {
   constructor(
     @Inject('RABBITMQ_CLIENT')
     private readonly client: ClientProxy,
-  ) {}
-
-  async onModuleInit() {
-    try {
-      await this.client.connect();
-      this.logger.log('Successfully connected to RabbitMQ');
-    } catch (error) {
-      this.logger.error(`Failed to connect to RabbitMQ: ${error.message}`);
-      throw error;
-    }
+  ) {
+    this.logger.debug('RabbitMQService initialized with client:', {
+      client: this.client,
+    });
   }
 
   async send(pattern: string, data: any): Promise<any> {
@@ -26,15 +20,25 @@ export class RabbitMQService {
 
     while (retries < this.maxRetries) {
       try {
+        const connection = await this.client.connect();
+        this.logger.debug('Connection details:', {
+          connection,
+          pattern,
+          queue: (this.client as any).options?.queue,
+        });
+
         this.logger.debug(
           `[Attempt ${retries + 1}] Sending message to pattern: ${pattern}`,
         );
         this.logger.debug('Data:', JSON.stringify(data));
-        this.logger.debug('Client ready state:', await this.client.connect());
 
         const response$ = this.client.send(pattern, data).pipe(timeout(5000));
 
+        this.logger.debug('Response observable created:', response$);
+
         const response = await firstValueFrom(response$);
+
+        this.logger.debug('Raw response received:', response);
 
         if (response === undefined || response === null) {
           throw new Error(
@@ -56,6 +60,7 @@ export class RabbitMQService {
             stack: error.stack,
             name: error.name,
             code: error?.code,
+            clientDetails: (this.client as any).options,
           },
         );
 
