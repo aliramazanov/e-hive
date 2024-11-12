@@ -8,7 +8,7 @@ export class UserController {
 
   constructor(private readonly userService: UserService) {}
 
-  @MessagePattern('create_user')
+  @MessagePattern('user.create')
   async createUser(data: { email: string }) {
     this.logger.log(
       `Received request to create user with email: ${data.email}`,
@@ -45,7 +45,7 @@ export class UserController {
     }
   }
 
-  @MessagePattern('get_user')
+  @MessagePattern('user.get')
   async getUser(data: { id: string }) {
     this.logger.debug(`Received request to get user with ID: ${data.id}`);
     try {

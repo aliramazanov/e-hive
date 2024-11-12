@@ -13,7 +13,7 @@ async function bootstrap() {
       urls: [
         `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
       ],
-      queue: 'user_queue',
+      queue: 'microservices.user.queue',
       queueOptions: {
         durable: true,
       },

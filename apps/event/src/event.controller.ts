@@ -10,7 +10,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventService } from './event.service';
@@ -49,9 +49,17 @@ export class EventController {
     return this.eventService.findById(id);
   }
 
-  @MessagePattern('get_event')
-  async getEventMessagePattern(id: string) {
-    return this.eventService.findById(id);
+  @MessagePattern('event.get')
+  async getEventMessagePattern(@Payload() id: string) {
+    this.logger.debug(`Received event.get request for ID: ${id}`);
+    try {
+      const event = await this.eventService.findById(id);
+      this.logger.debug(`Found event for ID ${id}:`, event);
+      return event;
+    } catch (error) {
+      this.logger.error(`Error processing event.get for ID ${id}:`, error);
+      throw error;
+    }
   }
 
   @Put(':id')
