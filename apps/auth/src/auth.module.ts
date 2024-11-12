@@ -45,7 +45,7 @@ import { LocalStrategy } from './strategy/local.strategy';
       }),
       inject: [ConfigService],
     }),
-    RabbitMQModule.register('user_queue'),
+    RabbitMQModule.register('microservices.user.queue'),
   ],
   controllers: [AuthController],
   providers: [
@@ -58,5 +58,4 @@ import { LocalStrategy } from './strategy/local.strategy';
     },
   ],
 })
-
 export class AuthModule {}

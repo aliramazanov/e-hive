@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +16,7 @@ import { Auth } from './entity/auth.entity';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(Auth)
     private readonly authRepository: Repository<Auth>,
@@ -46,14 +48,9 @@ export class AuthService {
 
       const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-      await this.authRepository
-        .update(user.id, {
-          refreshToken: hashedRefreshToken,
-        })
-        .catch((error) => {
-          this.logger.error(`Failed to update refresh token: ${error.message}`);
-          throw new Error('Login failed');
-        });
+      await this.authRepository.update(user.id, {
+        refreshToken: hashedRefreshToken,
+      });
 
       return {
         access_token: accessToken,
@@ -64,8 +61,8 @@ export class AuthService {
         },
       };
     } catch (error) {
-      this.logger.error(`Login failed: ${error.message}`);
-      throw error;
+      this.logger.error(`Login failed: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Login failed');
     }
   }
 
@@ -79,12 +76,12 @@ export class AuthService {
         throw new ConflictException('Email already registered');
       }
 
-      const userId = await this.rmqService.send('create_user', {
+      const userId = await this.rmqService.send('user.create', {
         email: createUserDto.email,
       });
 
       if (!userId) {
-        throw new Error('Failed to create user');
+        throw new InternalServerErrorException('Failed to create user');
       }
 
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -96,14 +93,33 @@ export class AuthService {
       });
 
       await this.authRepository.save(auth);
+
       return this.login(auth);
     } catch (error) {
-      if (error.message !== 'Email already registered') {
-        await this.rmqService.publish('user.registration.failed', {
-          email: createUserDto.email,
-        });
+      this.logger.error(`Registration failed: ${error.message}`, error.stack);
+
+      if (!(error instanceof ConflictException)) {
+        try {
+          await this.rmqService.publish('user.registration.failed', {
+            email: createUserDto.email,
+            error: error.message,
+          });
+        } catch (publishError) {
+          this.logger.error(
+            `Failed to publish registration failure event: ${publishError.message}`,
+            publishError.stack,
+          );
+        }
       }
-      throw error;
+
+      if (
+        error instanceof ConflictException ||
+        error instanceof InternalServerErrorException
+      ) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Registration failed');
     }
   }
 
@@ -118,12 +134,13 @@ export class AuthService {
       });
 
       if (!auth || !(await bcrypt.compare(refreshToken, auth.refreshToken))) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Invalid refresh token');
       }
 
       return this.login(auth);
-    } catch {
-      throw new UnauthorizedException();
+    } catch (error) {
+      this.logger.error(`Token refresh failed: ${error.message}`, error.stack);
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }
