@@ -13,7 +13,7 @@ import { Booking } from './entity/booking.entity';
     }),
     PostgresModule,
     PostgresModule.forFeature([Booking]),
-    RabbitMQModule.register('user_queue'),
+    RabbitMQModule.register('microservices.user.queue'),
     RabbitMQModule.register('event_queue'),
   ],
   controllers: [BookingController],

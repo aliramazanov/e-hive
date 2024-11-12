@@ -19,66 +19,86 @@ export class BookingService {
     private readonly rabbitMQService: RabbitMQService,
   ) {}
 
+  private async validateUser(userId: string): Promise<void> {
+    this.logger.debug(`Validating user with ID: ${userId}`);
+    const user = await this.rabbitMQService.send('user.get', { id: userId });
+
+    if (!user) {
+      this.logger.error(`User not found with ID: ${userId}`);
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    this.logger.debug(`User validated successfully: ${userId}`);
+  }
+
+  private async validateEvents(eventIds: string[]): Promise<void> {
+    this.logger.debug(`Starting validation for events: ${eventIds.join(', ')}`);
+
+    try {
+      const validationPromises = eventIds.map(async (eventId) => {
+        this.logger.debug(`Validating event with ID: ${eventId}`);
+        const event = await this.rabbitMQService.send('event.get', eventId);
+
+        if (!event) {
+          this.logger.error(`Event not found with ID: ${eventId}`);
+          throw new NotFoundException(`Event with ID ${eventId} not found`);
+        }
+
+        this.logger.debug(`Event validated successfully: ${eventId}`, event);
+        return event;
+      });
+
+      await Promise.all(validationPromises);
+      this.logger.debug('All events validated successfully');
+    } catch (error) {
+      this.logger.error('Event validation failed:', {
+        error: error.message,
+        stack: error.stack,
+      });
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException({
+        message: 'Failed to validate events',
+        error: error.message,
+        details: 'Error occurred while validating events',
+      });
+    }
+  }
+
+  private async notifyEventBookings(
+    bookingId: string,
+    userId: string,
+    eventIds: string[],
+  ): Promise<void> {
+    try {
+      await Promise.all(
+        eventIds.map((eventId) =>
+          this.rabbitMQService.send('booking_created', {
+            eventId,
+            bookingId,
+            userId,
+          }),
+        ),
+      );
+      this.logger.debug('Successfully notified all events about booking');
+    } catch (error) {
+      this.logger.warn(
+        `Failed to notify events about booking: ${error.message}`,
+      );
+    }
+  }
+
   async createBooking(userId: string, eventIds: string[]): Promise<Booking> {
     if (!eventIds?.length) {
       throw new BadRequestException('At least one event ID must be provided');
     }
 
     try {
-      this.logger.debug(`Validating user with ID: ${userId}`);
-      const userResponse = await this.rabbitMQService.send('get_user', {
-        id: userId,
-      });
-
-      if (!userResponse) {
-        this.logger.error(`User not found with ID: ${userId}`);
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
-      this.logger.debug(`User validated successfully: ${userId}`);
-    } catch (error) {
-      this.logger.error(
-        `User validation failed: ${error.message}`,
-        error.stack,
-      );
-      throw new BadRequestException({
-        message: 'Failed to validate user',
-        error: error.message,
-        details: 'Error occurred while processing user validation',
-      });
-    }
-
-    try {
-      this.logger.debug(`Validating events: ${eventIds.join(', ')}`);
-
-      const eventPromises = eventIds.map(async (eventId) => {
-        const response = await this.rabbitMQService.send('get_event', eventId);
-
-        if (!response) {
-          this.logger.error(`Event not found with ID: ${eventId}`);
-          throw new NotFoundException(`Event with ID ${eventId} not found`);
-        }
-
-        return response;
-      });
-
-      await Promise.all(eventPromises);
-      this.logger.debug('All events validated successfully');
-    } catch (error) {
-      this.logger.error(
-        `Event validation failed: ${error.message}`,
-        error.stack,
-      );
-
-      throw new BadRequestException({
-        message: 'Failed to validate events',
-        error: error.message,
-        details: 'Error occurred while processing event validation',
-      });
-    }
-
-    try {
-      this.logger.debug('Creating new booking');
+      await this.validateUser(userId);
+      await this.validateEvents(eventIds);
 
       const booking = this.bookingRepository.create({
         userId,
@@ -89,26 +109,11 @@ export class BookingService {
       });
 
       const savedBooking = await this.bookingRepository.save(booking);
-
       this.logger.debug(
         `Booking created successfully with ID: ${savedBooking.id}`,
       );
 
-      try {
-        await Promise.all(
-          eventIds.map(async (eventId) =>
-            this.rabbitMQService.send('booking_created', {
-              eventId,
-              bookingId: savedBooking.id,
-              userId,
-            }),
-          ),
-        );
-      } catch (notificationError) {
-        this.logger.warn(
-          `Failed to notify event service about booking: ${notificationError.message}`,
-        );
-      }
+      await this.notifyEventBookings(savedBooking.id, userId, eventIds);
 
       return savedBooking;
     } catch (error) {
@@ -116,10 +121,18 @@ export class BookingService {
         `Booking creation failed: ${error.message}`,
         error.stack,
       );
+
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+
       throw new BadRequestException({
         message: 'Failed to create booking',
         error: error.message,
-        details: 'Error occurred while saving booking to database',
+        details: 'Error occurred while processing booking creation',
       });
     }
   }
