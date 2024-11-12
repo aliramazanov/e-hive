@@ -52,9 +52,7 @@ export class BookingService {
       this.logger.debug(`Validating events: ${eventIds.join(', ')}`);
 
       const eventPromises = eventIds.map(async (eventId) => {
-        const response = await this.rabbitMQService.send('get_event', {
-          id: eventId,
-        });
+        const response = await this.rabbitMQService.send('get_event', eventId);
 
         if (!response) {
           this.logger.error(`Event not found with ID: ${eventId}`);

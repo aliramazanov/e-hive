@@ -24,9 +24,19 @@ export class BookingController {
     );
   }
 
+  @MessagePattern('create_booking')
+  async createBookingMessagePattern(data: CreateBookingDto) {
+    return this.bookingService.createBooking(data.userId, data.eventIds);
+  }
+
   @Get('user/:userId')
   @HttpCode(HttpStatus.OK)
   async getUserBookingsHttp(@Param('userId') userId: string) {
+    return this.bookingService.findByUserId(userId);
+  }
+
+  @MessagePattern('get_user_bookings')
+  async getUserBookingsMessagePattern(userId: string) {
     return this.bookingService.findByUserId(userId);
   }
 
@@ -36,18 +46,8 @@ export class BookingController {
     return this.bookingService.findById(id);
   }
 
-  @MessagePattern('create_booking')
-  async createBookingMessage(data: CreateBookingDto) {
-    return this.bookingService.createBooking(data.userId, data.eventIds);
-  }
-
-  @MessagePattern('get_user_bookings')
-  async getUserBookingsMessage(userId: string) {
-    return this.bookingService.findByUserId(userId);
-  }
-
   @MessagePattern('get_booking')
-  async getBookingMessage(id: string) {
+  async getBookingMessagePattern(id: string) {
     return this.bookingService.findById(id);
   }
 }
