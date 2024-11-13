@@ -3,10 +3,11 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('event')
-export class Event {
+@Entity('events')
+export class EventEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -16,7 +17,7 @@ export class Event {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ type: 'timestamp' })
   date: Date;
 
   @Column()
@@ -25,9 +26,9 @@ export class Event {
   @Column()
   capacity: number;
 
-  @Column({ default: true })
-  isActive: boolean;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

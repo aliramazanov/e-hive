@@ -1,10 +1,11 @@
+import { MessagePatterns } from '@app/common';
 import { RabbitMQService } from '@app/rabbitmq';
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   UnauthorizedException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -26,17 +27,21 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
+    this.logger.debug(`Validating user: ${email}`);
     const auth = await this.authRepository.findOne({ where: { email } });
 
     if (auth && (await bcrypt.compare(password, auth.password))) {
       const { password, ...result } = auth;
+      this.logger.debug(`User validated successfully: ${email}`);
       return result;
     }
 
+    this.logger.debug(`User validation failed: ${email}`);
     return null;
   }
 
   async login(user: any) {
+    this.logger.debug(`Processing login for user: ${user.email}`);
     try {
       const payload = { email: user.email, sub: user.id };
 
@@ -52,6 +57,7 @@ export class AuthService {
         refreshToken: hashedRefreshToken,
       });
 
+      this.logger.debug(`Login successful for user: ${user.email}`);
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -67,20 +73,25 @@ export class AuthService {
   }
 
   async register(createUserDto: { email: string; password: string }) {
+    this.logger.debug(
+      `Processing registration for email: ${createUserDto.email}`,
+    );
     try {
       const existingAuth = await this.authRepository.findOne({
         where: { email: createUserDto.email },
       });
 
       if (existingAuth) {
+        this.logger.warn(`Email already registered: ${createUserDto.email}`);
         throw new ConflictException('Email already registered');
       }
 
-      const userId = await this.rmqService.send('user.create', {
+      const userId = await this.rmqService.send(MessagePatterns.user_create, {
         email: createUserDto.email,
       });
 
       if (!userId) {
+        this.logger.error('Failed to create user in user service');
         throw new InternalServerErrorException('Failed to create user');
       }
 
@@ -93,6 +104,9 @@ export class AuthService {
       });
 
       await this.authRepository.save(auth);
+      this.logger.debug(
+        `Registration successful for email: ${createUserDto.email}`,
+      );
 
       return this.login(auth);
     } catch (error) {
@@ -100,10 +114,13 @@ export class AuthService {
 
       if (!(error instanceof ConflictException)) {
         try {
-          await this.rmqService.publish('user.registration.failed', {
-            email: createUserDto.email,
-            error: error.message,
-          });
+          await this.rmqService.publish(
+            MessagePatterns.user_regstration_failed,
+            {
+              email: createUserDto.email,
+              error: error.message,
+            },
+          );
         } catch (publishError) {
           this.logger.error(
             `Failed to publish registration failure event: ${publishError.message}`,
@@ -124,6 +141,7 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
+    this.logger.debug('Processing token refresh');
     try {
       const decoded = this.jwtService.verify(refreshToken, {
         secret: this.configService.get('REFRESH_TOKEN_SECRET'),
@@ -134,9 +152,11 @@ export class AuthService {
       });
 
       if (!auth || !(await bcrypt.compare(refreshToken, auth.refreshToken))) {
+        this.logger.warn('Invalid refresh token attempt');
         throw new UnauthorizedException('Invalid refresh token');
       }
 
+      this.logger.debug(`Token refresh successful for user: ${auth.email}`);
       return this.login(auth);
     } catch (error) {
       this.logger.error(`Token refresh failed: ${error.message}`, error.stack);

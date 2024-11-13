@@ -1,3 +1,4 @@
+import { QueueName, VirtualHost } from '@app/common';
 import { PostgresModule } from '@app/postgres';
 import { RabbitMQModule } from '@app/rabbitmq';
 import { Module } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { Auth } from './entity/auth.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
+import { HealthModule } from '@app/health';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { LocalStrategy } from './strategy/local.strategy';
         JWT_EXPIRATION: Joi.string().required(),
         REFRESH_TOKEN_SECRET: Joi.string().required(),
         REFRESH_TOKEN_EXPIRATION: Joi.string().required(),
+        SERVICE_NAME: Joi.string().default('auth-service'), // Add this
+        VERSION: Joi.string().default('1.0.0'), // Add this
       }),
       expandVariables: true,
       cache: true,
@@ -32,6 +36,7 @@ import { LocalStrategy } from './strategy/local.strategy';
         abortEarly: false,
       },
     }),
+    HealthModule,
     PostgresModule,
     PostgresModule.forFeature([Auth]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -45,7 +50,12 @@ import { LocalStrategy } from './strategy/local.strategy';
       }),
       inject: [ConfigService],
     }),
-    RabbitMQModule.register('microservices.user.queue'),
+    RabbitMQModule.register([
+      {
+        name: QueueName.user,
+        vhost: VirtualHost.user,
+      },
+    ]),
   ],
   controllers: [AuthController],
   providers: [

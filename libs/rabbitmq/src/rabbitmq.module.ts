@@ -1,3 +1,4 @@
+import { QueueConfig } from '@app/common';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -6,7 +7,7 @@ import { RabbitMQService } from './rabbitmq.service';
 
 @Module({})
 export class RabbitMQModule {
-  static register(queue: string): DynamicModule {
+  static register(queues: QueueConfig[]): DynamicModule {
     return {
       module: RabbitMQModule,
       imports: [
@@ -18,9 +19,9 @@ export class RabbitMQModule {
             RABBITMQ_PORT: Joi.number().required(),
           }),
         }),
-        ClientsModule.registerAsync([
-          {
-            name: 'RABBITMQ_CLIENT',
+        ClientsModule.registerAsync(
+          queues.map((queue) => ({
+            name: `RABBITMQ_CLIENT_${queue.name}`,
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
               transport: Transport.RMQ,
@@ -28,9 +29,9 @@ export class RabbitMQModule {
                 urls: [
                   `amqp://${configService.get<string>('RABBITMQ_USER')}:${configService.get<string>(
                     'RABBITMQ_PASSWORD',
-                  )}@${configService.get<string>('RABBITMQ_HOST')}:${configService.get<string>('RABBITMQ_PORT')}`,
+                  )}@${configService.get<string>('RABBITMQ_HOST')}:${configService.get<string>('RABBITMQ_PORT')}${queue.vhost}`,
                 ],
-                queue,
+                queue: queue.name,
                 queueOptions: {
                   durable: true,
                 },
@@ -38,8 +39,8 @@ export class RabbitMQModule {
               },
             }),
             inject: [ConfigService],
-          },
-        ]),
+          })),
+        ),
       ],
       providers: [RabbitMQService],
       exports: [RabbitMQService, ClientsModule],

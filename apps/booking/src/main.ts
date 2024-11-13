@@ -1,9 +1,11 @@
+import { Queue_Configurations, QueueName } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { BookingModule } from './booking.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(BookingModule);
+  const queueConfig = Queue_Configurations[QueueName.booking];
 
   app.enableCors();
   app.setGlobalPrefix('api');
@@ -12,9 +14,9 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [
-        `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
+        `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}${queueConfig.vhost}`,
       ],
-      queue: 'booking_queue',
+      queue: queueConfig.name,
       queueOptions: {
         durable: true,
       },

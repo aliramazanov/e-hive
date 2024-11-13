@@ -1,3 +1,4 @@
+import { QueueName, VirtualHost } from '@app/common';
 import { PostgresModule } from '@app/postgres';
 import { RabbitMQModule } from '@app/rabbitmq';
 import { Module } from '@nestjs/common';
@@ -13,7 +14,16 @@ import { Booking } from './entity/booking.entity';
     }),
     PostgresModule,
     PostgresModule.forFeature([Booking]),
-    RabbitMQModule.register('microservices.user.queue'),
+    RabbitMQModule.register([
+      {
+        name: QueueName.user,
+        vhost: VirtualHost.user,
+      },
+      {
+        name: QueueName.event,
+        vhost: VirtualHost.event,
+      },
+    ]),
   ],
   controllers: [BookingController],
   providers: [BookingService],

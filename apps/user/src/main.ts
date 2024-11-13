@@ -1,9 +1,11 @@
+import { Queue_Configurations, QueueName } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { UserModule } from './user.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(UserModule);
+  const queueConfig = Queue_Configurations[QueueName.user];
 
   app.enableCors();
 
@@ -11,9 +13,9 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [
-        `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
+        `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}${queueConfig.vhost}`,
       ],
-      queue: 'microservices.user.queue',
+      queue: queueConfig.name,
       queueOptions: {
         durable: true,
       },

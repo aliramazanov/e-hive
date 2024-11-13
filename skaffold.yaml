@@ -17,60 +17,60 @@ build:
         manual:
           - src: "apps/auth/src/**/*.ts"
             dest: .
-    - image: booking-service
-      context: .
-      docker:
-        dockerfile: apps/booking/Dockerfile
-        target: development
-        buildArgs:
-          NODE_ENV: development
-      sync:
-        manual:
-          - src: "apps/booking/src/**/*.ts"
-            dest: .
-    - image: event-service
-      context: .
-      docker:
-        dockerfile: apps/event/Dockerfile
-        target: development
-        buildArgs:
-          NODE_ENV: development
-      sync:
-        manual:
-          - src: "apps/event/src/**/*.ts"
-            dest: .
-    - image: operation-service
-      context: .
-      docker:
-        dockerfile: apps/operation/Dockerfile
-        target: development
-        buildArgs:
-          NODE_ENV: development
-      sync:
-        manual:
-          - src: "apps/operation/src/**/*.ts"
-            dest: .
-    - image: user-service
-      context: .
-      docker:
-        dockerfile: apps/user/Dockerfile
-        target: development
-        buildArgs:
-          NODE_ENV: development
-      sync:
-        manual:
-          - src: "apps/user/src/**/*.ts"
-            dest: .
+    # - image: booking-service
+    #   context: .
+    #   docker:
+    #     dockerfile: apps/booking/Dockerfile
+    #     target: development
+    #     buildArgs:
+    #       NODE_ENV: development
+    #   sync:
+    #     manual:
+    #       - src: "apps/booking/src/**/*.ts"
+    #         dest: .
+    # - image: event-service
+    #   context: .
+    #   docker:
+    #     dockerfile: apps/event/Dockerfile
+    #     target: development
+    #     buildArgs:
+    #       NODE_ENV: development
+    #   sync:
+    #     manual:
+    #       - src: "apps/event/src/**/*.ts"
+    #         dest: .
+    # - image: operation-service
+    #   context: .
+    #   docker:
+    #     dockerfile: apps/operation/Dockerfile
+    #     target: development
+    #     buildArgs:
+    #       NODE_ENV: development
+    #   sync:
+    #     manual:
+    #       - src: "apps/operation/src/**/*.ts"
+    #         dest: .
+    # - image: user-service
+    #   context: .
+    #   docker:
+    #     dockerfile: apps/user/Dockerfile
+    #     target: development
+    #     buildArgs:
+    #       NODE_ENV: development
+    #   sync:
+    #     manual:
+    #       - src: "apps/user/src/**/*.ts"
+    #         dest: .
 manifests:
   rawYaml:
-    - k8s/auth/*.yaml
-    - k8s/nginx/*.yaml
-    - k8s/booking/*.yaml
-    - k8s/event/*.yaml
-    - k8s/operation/*.yaml
-    - k8s/user/*.yaml
     - k8s/postgres/*.yaml
     - k8s/rabbitmq/*.yaml
+    - k8s/auth/*.yaml
+    # - k8s/user/*.yaml
+    # - k8s/event/*.yaml
+    # - k8s/booking/*.yaml
+    # - k8s/operation/*.yaml
+    - k8s/nginx/*.yaml
 profiles:
   - name: dev
     activation:

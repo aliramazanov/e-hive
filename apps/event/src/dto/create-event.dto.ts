@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsDate, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()

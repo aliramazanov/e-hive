@@ -1,10 +1,11 @@
+import { QueueName, VirtualHost } from '@app/common';
+import { PostgresModule } from '@app/postgres';
+import { RabbitMQModule } from '@app/rabbitmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PostgresModule } from '@app/postgres';
+import { User } from './entity/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { User } from './entity/user.entity';
-import { RabbitMQModule } from '@app/rabbitmq';
 
 @Module({
   imports: [
@@ -13,7 +14,12 @@ import { RabbitMQModule } from '@app/rabbitmq';
     }),
     PostgresModule,
     PostgresModule.forFeature([User]),
-    RabbitMQModule.register('event_queue'),
+    RabbitMQModule.register([
+      {
+        name: QueueName.event,
+        vhost: VirtualHost.event,
+      },
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService],
