@@ -63,14 +63,14 @@ build:
             dest: .
 manifests:
   rawYaml:
-    - k8s/auth/*.yaml
-    - k8s/nginx/*.yaml
-    - k8s/booking/*.yaml
-    - k8s/event/*.yaml
-    - k8s/operation/*.yaml
-    - k8s/user/*.yaml
     - k8s/postgres/*.yaml
     - k8s/rabbitmq/*.yaml
+    - k8s/auth/*.yaml
+    - k8s/user/*.yaml
+    - k8s/event/*.yaml
+    - k8s/booking/*.yaml
+    - k8s/operation/*.yaml
+    - k8s/nginx/*.yaml
 profiles:
   - name: dev
     activation:
