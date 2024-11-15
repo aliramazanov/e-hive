@@ -1,3 +1,4 @@
+import { RabbitQueues } from '@app/common';
 import { PostgresModule } from '@app/postgres';
 import { RabbitMQModule } from '@app/rabbitmq';
 import { Module } from '@nestjs/common';
@@ -45,7 +46,7 @@ import { LocalStrategy } from './strategy/local.strategy';
       }),
       inject: [ConfigService],
     }),
-    RabbitMQModule.register('microservices.user.queue'),
+    RabbitMQModule.register(RabbitQueues.microservices_user_queue),
   ],
   controllers: [AuthController],
   providers: [

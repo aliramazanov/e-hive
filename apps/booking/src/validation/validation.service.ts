@@ -1,11 +1,12 @@
+import { MessagePatterns } from '@app/common';
+import { RabbitMQService } from '@app/rabbitmq';
 import {
+  BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
-import { RabbitMQService } from '@app/rabbitmq';
-import { Inject } from '@nestjs/common';
 
 @Injectable()
 export class ValidationService {
@@ -22,7 +23,11 @@ export class ValidationService {
     try {
       const validationPromises = eventIds.map(async (eventId) => {
         this.logger.debug(`Validating event with ID: ${eventId}`);
-        const event = await this.eventClient.send('event.get', eventId);
+
+        const event = await this.eventClient.send(
+          MessagePatterns.event_get,
+          eventId,
+        );
 
         if (!event) {
           this.logger.error(`Event not found with ID: ${eventId}`);

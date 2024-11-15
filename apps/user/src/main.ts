@@ -1,3 +1,4 @@
+import { RabbitQueues } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { UserModule } from './user.module';
@@ -13,7 +14,7 @@ async function bootstrap() {
       urls: [
         `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
       ],
-      queue: 'microservices.user.queue',
+      queue: RabbitQueues.microservices_user_queue,
       queueOptions: {
         durable: true,
       },

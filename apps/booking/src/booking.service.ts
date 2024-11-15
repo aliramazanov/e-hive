@@ -21,6 +21,7 @@ export class BookingService {
 
     @Inject('RABBITMQ_CLIENT')
     private readonly userService: RabbitMQService,
+
     private readonly validationService: ValidationService,
   ) {}
 

@@ -6,6 +6,7 @@ import { BookingController } from './booking.controller';
 import { BookingService } from './booking.service';
 import { Booking } from './entity/booking.entity';
 import { ValidationModule } from './validation/validation.module';
+import { RabbitQueues } from '@app/common';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ValidationModule } from './validation/validation.module';
     }),
     PostgresModule,
     PostgresModule.forFeature([Booking]),
-    RabbitMQModule.register('microservices.user.queue'),
+    RabbitMQModule.register(RabbitQueues.microservices_user_queue),
     ValidationModule,
   ],
   controllers: [BookingController],
