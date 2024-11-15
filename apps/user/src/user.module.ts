@@ -1,11 +1,11 @@
+import { RabbitQueues } from '@app/common';
+import { PostgresModule } from '@app/postgres';
+import { RabbitMQModule } from '@app/rabbitmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PostgresModule } from '@app/postgres';
+import { User } from './entity/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { User } from './entity/user.entity';
-import { RabbitMQModule } from '@app/rabbitmq';
-import { RabbitQueues } from '@app/common';
 
 @Module({
   imports: [

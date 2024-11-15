@@ -14,6 +14,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventService } from './event.service';
+import { MessagePatterns } from '@app/common';
 
 @Controller('event')
 export class EventController {
@@ -24,9 +25,7 @@ export class EventController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createEventDto: CreateEventDto) {
-    this.logger.log(
-      `Creating new event with data: ${JSON.stringify(createEventDto)}`,
-    );
+    this.logger.log(`Creating new event : ${JSON.stringify(createEventDto)}`);
     try {
       const result = await this.eventService.createEvent(createEventDto);
       this.logger.log(`Successfully created event with ID: ${result.id}`);
@@ -40,10 +39,10 @@ export class EventController {
     }
   }
 
-  @MessagePattern('create_event')
+  @MessagePattern(MessagePatterns.event_create)
   async createEventMessagePattern(eventData: CreateEventDto) {
     this.logger.log(
-      `Received create_event message with data: ${JSON.stringify(eventData)}`,
+      `Received event.create message with data: ${JSON.stringify(eventData)}`,
     );
     try {
       const result = await this.eventService.createEvent(eventData);
@@ -77,9 +76,9 @@ export class EventController {
     }
   }
 
-  @MessagePattern('get_all_events')
+  @MessagePattern(MessagePatterns.event_get_all)
   async getAllEventsMessagePattern() {
-    this.logger.log('Received get_all_events message');
+    this.logger.log('Received event.getall message');
     try {
       const events = await this.eventService.findAll();
       this.logger.log(`Retrieved ${events.length} events via message pattern`);
@@ -110,7 +109,7 @@ export class EventController {
     }
   }
 
-  @MessagePattern('event.get')
+  @MessagePattern(MessagePatterns.event_get)
   async getEventMessagePattern(@Payload() id: string) {
     this.logger.log(`Received event.get message for ID: ${id}`);
     try {
@@ -148,13 +147,13 @@ export class EventController {
     }
   }
 
-  @MessagePattern('update_event')
+  @MessagePattern(MessagePatterns.event_update)
   async updateEventMessagePattern(data: {
     id: string;
     updateEventDto: UpdateEventDto;
   }) {
     this.logger.log(
-      `Received update_event message for ID ${data.id} with data: ${JSON.stringify(data.updateEventDto)}`,
+      `Received event.update message for ID ${data.id} with data: ${JSON.stringify(data.updateEventDto)}`,
     );
     try {
       const result = await this.eventService.update(
@@ -190,9 +189,9 @@ export class EventController {
     }
   }
 
-  @MessagePattern('delete_event')
+  @MessagePattern(MessagePatterns.event_delete)
   async deleteEventMessagePattern(id: string) {
-    this.logger.log(`Received delete_event message for ID: ${id}`);
+    this.logger.log(`Received event.delete message for ID: ${id}`);
     try {
       await this.eventService.remove(id);
       this.logger.log(`Successfully deleted event ${id} via message pattern`);

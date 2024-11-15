@@ -45,11 +45,7 @@ export class ValidationService {
         throw error;
       }
 
-      throw new BadRequestException({
-        message: 'Failed to validate events',
-        error: error.message,
-        details: 'Error occurred while validating events',
-      });
+      throw new BadRequestException('Failed to validate events');
     }
   }
 

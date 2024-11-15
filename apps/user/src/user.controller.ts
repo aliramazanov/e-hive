@@ -1,6 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { UserService } from './user.service';
+import { MessagePatterns } from '@app/common';
 
 @Controller('user')
 export class UserController {
@@ -8,7 +9,7 @@ export class UserController {
 
   constructor(private readonly userService: UserService) {}
 
-  @MessagePattern('user.create')
+  @MessagePattern(MessagePatterns.user_create)
   async createUser(data: { email: string }) {
     this.logger.log(
       `Received request to create user with email: ${data.email}`,
@@ -28,7 +29,7 @@ export class UserController {
     }
   }
 
-  @MessagePattern('user.registration.failed')
+  @MessagePattern(MessagePatterns.user_regstration_failed)
   async handleRegistrationFailure(data: { email: string }) {
     this.logger.log(`Handling registration failure for email: ${data.email}`);
     try {
@@ -45,7 +46,7 @@ export class UserController {
     }
   }
 
-  @MessagePattern('user.get')
+  @MessagePattern(MessagePatterns.user_get)
   async getUser(data: { id: string }) {
     this.logger.debug(`Received request to get user with ID: ${data.id}`);
     try {

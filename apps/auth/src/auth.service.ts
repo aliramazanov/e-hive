@@ -26,17 +26,22 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
+    this.logger.debug(`Validating user: ${email}`);
     const auth = await this.authRepository.findOne({ where: { email } });
 
     if (auth && (await bcrypt.compare(password, auth.password))) {
       const { password, ...result } = auth;
+      this.logger.debug(`User validated successfully: ${email}`);
       return result;
     }
 
+    this.logger.debug(`User validation failed: ${email}`);
     return null;
   }
 
   async login(user: any) {
+    this.logger.debug(`Processing login for user: ${user.email}`);
+
     try {
       const payload = { email: user.email, sub: user.id };
 
@@ -51,6 +56,8 @@ export class AuthService {
       await this.authRepository.update(user.id, {
         refreshToken: hashedRefreshToken,
       });
+
+      this.logger.debug(`Login successful for user: ${user.email}`);
 
       return {
         access_token: accessToken,
@@ -67,12 +74,15 @@ export class AuthService {
   }
 
   async register(createUserDto: { email: string; password: string }) {
+    this.logger.debug(`Processing register for email: ${createUserDto.email}`);
+
     try {
       const existingAuth = await this.authRepository.findOne({
         where: { email: createUserDto.email },
       });
 
       if (existingAuth) {
+        this.logger.warn(`Email already registered: ${createUserDto.email}`);
         throw new ConflictException('Email already registered');
       }
 
@@ -81,6 +91,7 @@ export class AuthService {
       });
 
       if (!userId) {
+        this.logger.error(`Failed to create user in user service ${userId}`);
         throw new InternalServerErrorException('Failed to create user');
       }
 
@@ -93,6 +104,8 @@ export class AuthService {
       });
 
       await this.authRepository.save(auth);
+
+      this.logger.debug(`Registration successful for: ${createUserDto.email}`);
 
       return this.login(auth);
     } catch (error) {

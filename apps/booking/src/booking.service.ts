@@ -1,6 +1,7 @@
 import { RabbitMQService } from '@app/rabbitmq';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -8,7 +9,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Booking } from './entity/booking.entity';
-import { Inject } from '@nestjs/common';
 import { ValidationService } from './validation/validation.service';
 
 @Injectable()
@@ -18,6 +18,7 @@ export class BookingService {
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
+
     @Inject('RABBITMQ_CLIENT')
     private readonly userService: RabbitMQService,
     private readonly validationService: ValidationService,
@@ -29,7 +30,7 @@ export class BookingService {
 
     if (!user) {
       this.logger.error(`User not found with ID: ${userId}`);
-      throw new NotFoundException(`User with ID ${userId} not found`);
+      throw new NotFoundException(`User not found`);
     }
 
     this.logger.debug(`User validated successfully: ${userId}`);
@@ -53,9 +54,8 @@ export class BookingService {
       });
 
       const savedBooking = await this.bookingRepository.save(booking);
-      this.logger.debug(
-        `Booking created successfully with ID: ${savedBooking.id}`,
-      );
+
+      this.logger.debug(`Booking created with ID: ${savedBooking.id}`);
 
       await this.validationService.notifyEventBookings(
         savedBooking.id,
@@ -77,11 +77,7 @@ export class BookingService {
         throw error;
       }
 
-      throw new BadRequestException({
-        message: 'Failed to create booking',
-        error: error.message,
-        details: 'Error occurred while processing booking creation',
-      });
+      throw new BadRequestException('Failed to create booking');
     }
   }
 
@@ -93,7 +89,8 @@ export class BookingService {
       });
 
       if (!bookings.length) {
-        throw new NotFoundException(`No bookings found for user ${userId}`);
+        this.logger.error(`No bookings found for user: ${userId}`);
+        throw new NotFoundException('No bookings found for user');
       }
 
       return bookings;
@@ -101,9 +98,11 @@ export class BookingService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException(
-        `Failed to fetch bookings: ${error.message || 'Unknown error'}`,
+      this.logger.error(
+        `Failed to fetch bookings for user: ${userId}: ${error.message}`,
+        error.stack,
       );
+      throw new BadRequestException('Failed to fetch bookings');
     }
   }
 
@@ -114,7 +113,8 @@ export class BookingService {
       });
 
       if (!booking) {
-        throw new NotFoundException(`Booking with ID ${id} not found`);
+        this.logger.error(`Booking with ID ${id} not found`);
+        throw new NotFoundException(`Booking not found`);
       }
 
       return booking;
@@ -122,9 +122,11 @@ export class BookingService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException(
-        `Failed to fetch booking: ${error.message || 'Unknown error'}`,
+      this.logger.error(
+        `Failed to fetch booking: ${id}: ${error.message}`,
+        error.stack,
       );
+      throw new BadRequestException('Failed to fetch booking');
     }
   }
 }

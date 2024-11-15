@@ -30,6 +30,7 @@ export class EventService {
     this.logger.debug(`Finding event by ID: ${id}`);
     try {
       const event = await this.eventRepository.findOne({ where: { id } });
+
       if (event) {
         this.logger.debug(`Found event with ID: ${id}`);
       } else {
@@ -68,7 +69,7 @@ export class EventService {
       const event = await this.findById(id);
       if (!event) {
         this.logger.error(`Event with ID ${id} not found for update`);
-        throw new Error(`Event with ID ${id} not found`);
+        throw new Error(`Event not found`);
       }
       const updatedEvent = this.eventRepository.merge(event, updateEventDto);
       const savedEvent = await this.eventRepository.save(updatedEvent);
@@ -89,7 +90,7 @@ export class EventService {
       const event = await this.findById(id);
       if (!event) {
         this.logger.error(`Event with ID ${id} not found for removal`);
-        throw new Error(`Event with ID ${id} not found`);
+        throw new Error(`Event not found`);
       }
       await this.eventRepository.remove(event);
       this.logger.debug(`Successfully removed event ${id}`);
