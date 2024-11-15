@@ -5,6 +5,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { RabbitMQModule } from '@app/rabbitmq';
+import { RabbitQueues } from '@app/common';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { RabbitMQModule } from '@app/rabbitmq';
     }),
     PostgresModule,
     PostgresModule.forFeature([User]),
-    RabbitMQModule.register('event_queue'),
+    RabbitMQModule.register(RabbitQueues.microservices_event_queue),
   ],
   controllers: [UserController],
   providers: [UserService],
