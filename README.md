@@ -13,7 +13,6 @@
 - User Service: Manages user profiles and data
 - Event Service: Event creation and management
 - Booking Service: Handles booking operations
-- Operation Service: Helping with additional services
 
 ## Tech Stack:
 
@@ -27,6 +26,7 @@
 - Infrastructure: NGINX Ingress
 - Dev Tools: Skaffold
 - Authentication: JWT with Passport
+- Email Service: Nodemailer & OAuth 2.0
 
 ## Note on Secret Files
 

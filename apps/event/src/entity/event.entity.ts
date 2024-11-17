@@ -2,7 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('event')
@@ -16,6 +18,7 @@ export class Event {
   @Column()
   description: string;
 
+  @Index()
   @Column()
   date: Date;
 
@@ -28,6 +31,19 @@ export class Event {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata: Record<string, any>;
+
+  @Index()
+  @Column({ type: 'varchar', nullable: true })
+  organizerId: string;
+
+  @Column({ type: 'varchar', array: true, default: [] })
+  tags: string[];
 }

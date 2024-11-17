@@ -16,6 +16,7 @@ export const enum MessagePatterns {
   event_get_all = 'event.get.all',
   event_update = 'event.update',
   event_delete = 'event.delete',
+  event_check_availability = 'event.check.availability',
 
   booking_create = 'booking.create',
   booking_get = 'booking.get',
