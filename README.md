@@ -8,6 +8,7 @@
 ## NestJS Microservices with Kubernetes
 
 ## Architecture:
+
 - Auth Service: Handles authentication
 - User Service: Manages user profiles and data
 - Event Service: Event creation and management
@@ -15,6 +16,7 @@
 - Operation Service: Helping with additional services
 
 ## Tech Stack:
+
 - Built On: Node.js
 - Framework: NestJS
 - ORM: TypeORM
@@ -26,7 +28,30 @@
 - Dev Tools: Skaffold
 - Authentication: JWT with Passport
 
-
 ## Note on Secret Files
+
 - ⚠️ A quick note: The secret files in this repository are provided for being an example only
 - ⚠️ In a real production environment, you should never commit actual secret files to Git
+
+## Services
+
+### Auth Service
+
+- The Auth Service is responsible for sign-up, login, and token management using JWT.
+- It communicates with other microservices over RabbitMQ for decoupled messaging.
+
+#### Configuration for Email Secrets
+
+You need to configure `email-config.yaml` file and create your own `email-secret.yaml` to securely handle email credentials. Here's how to configure it:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: email-secret
+type: Opaque
+stringData:
+  GMAIL_CLIENT_ID: 'your-client-id.apps.googleusercontent.com'
+  GMAIL_CLIENT_SECRET: 'your-client-secret'
+  GMAIL_REFRESH_TOKEN: 'your-refresh-token'
+```

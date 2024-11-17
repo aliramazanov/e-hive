@@ -45,12 +45,16 @@ spec:
                 name: rabbitmq-secret
             - secretRef:
                 name: jwt-secret
+            - configMapRef:
+                name: email-config
+            - secretRef:
+                name: email-secret
           command: ["sh", "-c"]
           args: ["pnpm install && pnpm run start:dev auth"]
           resources:
             requests:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: "400m"
+              memory: "1536Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "600m"
+              memory: "2560Mi"

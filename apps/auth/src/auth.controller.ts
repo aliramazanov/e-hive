@@ -29,6 +29,14 @@ export class AuthController {
     return this.authService.register(createUserDto);
   }
 
+  @Public()
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Body() body: { token: string }) {
+    this.logger.debug('Email verification request received');
+    return this.authService.verifyEmail(body.token);
+  }
+
   @MessagePattern(MessagePatterns.auth_register)
   async registerMessagePattern(createUserDto: {
     email: string;
@@ -87,5 +95,22 @@ export class AuthController {
   @MessagePattern(MessagePatterns.auth_profile)
   async getProfileMessagePattern(user: any) {
     return user;
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() body: { email: string }) {
+    this.logger.debug(`Password reset request for email: ${body.email}`);
+    await this.authService.initiatePasswordReset(body.email);
+    return { message: 'If the email exists, a reset link has been sent' };
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    this.logger.debug('Password reset request received');
+    return this.authService.resetPassword(body.token, body.newPassword);
   }
 }

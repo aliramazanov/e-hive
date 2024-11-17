@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-config
+data:
+  APP_URL: "http://ehive.com"
+  EMAIL_FROM_NAME: "E-Hive"
+  EMAIL_FROM_ADDRESS: "toaliramazanov@gmail.com"
