@@ -6,12 +6,22 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
+import {
+  ChangePasswordDto,
+  RefreshTokenDto,
+  RegisterDto,
+  ResetPasswordDto,
+  ResetPasswordRequestDto,
+  UpdateEmailDto,
+} from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Public } from './guards/public.decorator';
@@ -24,16 +34,13 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() createUserDto: { email: string; password: string }) {
+  async register(@Body() createUserDto: RegisterDto) {
     this.logger.debug(`Register request for email: ${createUserDto.email}`);
     return this.authService.register(createUserDto);
   }
 
   @MessagePattern(MessagePatterns.auth_register)
-  async registerMessagePattern(createUserDto: {
-    email: string;
-    password: string;
-  }) {
+  async registerMessagePattern(createUserDto: RegisterDto) {
     return this.authService.register(createUserDto);
   }
 
@@ -54,13 +61,13 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Body() body: { refreshToken: string }) {
-    return this.authService.refreshToken(body.refreshToken);
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto.refreshToken);
   }
 
   @MessagePattern(MessagePatterns.auth_refresh)
-  async refreshTokenMessagePattern(body: { refreshToken: string }) {
-    return this.authService.refreshToken(body.refreshToken);
+  async refreshTokenMessagePattern(dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -87,5 +94,74 @@ export class AuthController {
   @MessagePattern(MessagePatterns.auth_profile)
   async getProfileMessagePattern(user: any) {
     return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() user: any,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(user.userId, dto);
+  }
+
+  @MessagePattern(MessagePatterns.auth_change_password)
+  async changePasswordMessagePattern(data: {
+    userId: string;
+    dto: ChangePasswordDto;
+  }) {
+    return this.authService.changePassword(data.userId, data.dto);
+  }
+
+  @Public()
+  @Post('password/reset-request')
+  @HttpCode(HttpStatus.OK)
+  async requestPasswordReset(@Body() dto: ResetPasswordRequestDto) {
+    return this.authService.requestPasswordReset(dto);
+  }
+
+  @MessagePattern(MessagePatterns.auth_request_password_reset)
+  async requestPasswordResetMessagePattern(dto: ResetPasswordRequestDto) {
+    return this.authService.requestPasswordReset(dto);
+  }
+
+  @Public()
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @MessagePattern(MessagePatterns.auth_reset_password)
+  async resetPasswordMessagePattern(dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('email')
+  @HttpCode(HttpStatus.OK)
+  async updateEmail(@CurrentUser() user: any, @Body() dto: UpdateEmailDto) {
+    return this.authService.updateEmail(user.userId, dto);
+  }
+
+  @MessagePattern(MessagePatterns.auth_update_email)
+  async updateEmailMessagePattern(data: {
+    userId: string;
+    dto: UpdateEmailDto;
+  }) {
+    return this.authService.updateEmail(data.userId, data.dto);
+  }
+
+  @Public()
+  @Get('verify-email/:token')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(@Param('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
+  @MessagePattern(MessagePatterns.auth_verify_email)
+  async verifyEmailMessagePattern(token: string) {
+    return this.authService.verifyEmail(token);
   }
 }

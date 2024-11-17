@@ -14,6 +14,7 @@ import { Auth } from './entity/auth.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { LocalStrategy } from './strategy/local.strategy';
       inject: [ConfigService],
     }),
     RabbitMQModule.register(RabbitQueues.microservices_user_queue),
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [
