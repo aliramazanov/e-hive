@@ -113,15 +113,15 @@ export class EventController {
     }
   }
 
-  @Put(':id')
+  @Put(':id/:organizerId')
   @HttpCode(HttpStatus.OK)
   async update(
     @Param('id') id: string,
+    @Param('organizerId') organizerId: string,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    const organizerId = updateEventDto.organizerId;
     this.logger.log(
-      `Updating event ${id} with data: ${JSON.stringify(updateEventDto)}`,
+      `Updating event ${id} by organizer ${organizerId} with data: ${JSON.stringify(updateEventDto)}`,
     );
     try {
       const result = await this.eventService.update(
