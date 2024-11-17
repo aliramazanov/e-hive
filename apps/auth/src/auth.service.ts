@@ -1,3 +1,4 @@
+import { MessagePatterns } from '@app/common';
 import { RabbitMQService } from '@app/rabbitmq';
 import {
   ConflictException,
@@ -14,7 +15,6 @@ import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import { EmailService } from './email/email.service';
 import { Auth } from './entity/auth.entity';
-import { MessagePatterns } from '@app/common';
 
 @Injectable()
 export class AuthService {
