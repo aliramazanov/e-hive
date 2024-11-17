@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(UserModule);
 
   app.enableCors();
+  app.setGlobalPrefix('api');
 
   app.connectMicroservice({
     transport: Transport.RMQ,

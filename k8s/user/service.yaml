@@ -8,6 +8,6 @@ spec:
   ports:
     - name: user-service
       protocol: TCP
-      port: 3004
-      targetPort: 3004
+      port: 3003
+      targetPort: 3003
   type: ClusterIP

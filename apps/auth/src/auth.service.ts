@@ -14,6 +14,7 @@ import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import { EmailService } from './email/email.service';
 import { Auth } from './entity/auth.entity';
+import { MessagePatterns } from '@app/common';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,7 @@ export class AuthService {
         throw new ConflictException('Email already registered');
       }
 
-      const userId = await this.rmqService.send('user.create', {
+      const userId = await this.rmqService.send(MessagePatterns.user_create, {
         email: createUserDto.email,
       });
 
@@ -76,10 +77,13 @@ export class AuthService {
 
       if (!(error instanceof ConflictException)) {
         try {
-          await this.rmqService.publish('user.registration.failed', {
-            email: createUserDto.email,
-            error: error.message,
-          });
+          await this.rmqService.publish(
+            MessagePatterns.user_regstration_failed,
+            {
+              email: createUserDto.email,
+              error: error.message,
+            },
+          );
         } catch (publishError) {
           this.logger.error(
             `Failed to publish registration failure event: ${publishError.message}`,

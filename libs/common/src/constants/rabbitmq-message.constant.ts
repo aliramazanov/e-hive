@@ -9,6 +9,7 @@ export const enum MessagePatterns {
   user_regstration_failed = 'user.regstation.failed',
   user_get = 'user.get',
   user_update = 'user.update',
+  user_delete = 'user.delete',
 
   event_create = 'event.create',
   event_get = 'event.get',
