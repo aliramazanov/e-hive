@@ -23,7 +23,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(3004, '0.0.0.0');
+  await app.listen(3003, '0.0.0.0');
   console.log(`User service is running on: ${await app.getUrl()}`);
 }
 

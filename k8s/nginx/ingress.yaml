@@ -35,17 +35,10 @@ spec:
                 name: event-service-srv
                 port:
                   number: 3002
-          - path: /api/operation/?(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: operation-service-srv
-                port:
-                  number: 3003
           - path: /api/user/?(.*)
             pathType: ImplementationSpecific
             backend:
               service:
                 name: user-service-srv
                 port:
-                  number: 3004
+                  number: 3003

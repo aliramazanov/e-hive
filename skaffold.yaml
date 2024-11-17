@@ -39,17 +39,6 @@ build:
         manual:
           - src: "apps/event/src/**/*.ts"
             dest: .
-    - image: operation-service
-      context: .
-      docker:
-        dockerfile: apps/operation/Dockerfile
-        target: development
-        buildArgs:
-          NODE_ENV: development
-      sync:
-        manual:
-          - src: "apps/operation/src/**/*.ts"
-            dest: .
     - image: user-service
       context: .
       docker:
@@ -69,7 +58,6 @@ manifests:
     - k8s/user/*.yaml
     - k8s/event/*.yaml
     - k8s/booking/*.yaml
-    - k8s/operation/*.yaml
     - k8s/nginx/*.yaml
 profiles:
   - name: dev

@@ -1,3 +1,4 @@
+import { MessagePatterns } from '@app/common';
 import {
   Body,
   Controller,
@@ -11,7 +12,6 @@ import {
 import { MessagePattern } from '@nestjs/microservices';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { MessagePatterns } from '@app/common';
 
 @Controller('booking')
 export class BookingController {

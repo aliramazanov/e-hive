@@ -1,3 +1,4 @@
+import { MessagePatterns } from '@app/common';
 import {
   Body,
   Controller,
@@ -14,7 +15,6 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventService } from './event.service';
-import { MessagePatterns } from '@app/common';
 
 @Controller('event')
 export class EventController {
