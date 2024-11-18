@@ -28,6 +28,10 @@
 - Authentication: JWT with Passport
 - Email Service: Nodemailer & OAuth 2.0
 
+
+![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2580643e45142f1a6.svg "Repo analytics image")
+
+
 ## Note on Secret Files
 
 - ⚠️ A quick note: The secret files in this repository are provided for being an example only
