@@ -7,6 +7,8 @@ import {
   HttpStatus,
   Logger,
   Post,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
@@ -15,11 +17,15 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Public } from './guards/public.decorator';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -112,5 +118,24 @@ export class AuthController {
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
     this.logger.debug('Password reset request received');
     return this.authService.resetPassword(body.token, body.newPassword);
+  }
+
+  @Public()
+  @Get('validate')
+  @HttpCode(HttpStatus.OK)
+  async validateToken(@Req() request: Request) {
+    const authHeader = request.headers['authorization'];
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException();
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+      const payload = await this.jwtService.verify(token);
+      return { valid: true, user: payload };
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 }
