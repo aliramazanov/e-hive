@@ -7,53 +7,72 @@ import {
   HttpStatus,
   Logger,
   Param,
+  ParseUUIDPipe,
   Post,
+  Put,
 } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Controller('booking')
 export class BookingController {
   private readonly logger = new Logger(BookingController.name);
+
   constructor(private readonly bookingService: BookingService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createBookingDto: CreateBookingDto) {
     this.logger.log(`Creating booking for user: ${createBookingDto.userId}`);
-    return this.bookingService.createBooking(
-      createBookingDto.userId,
-      createBookingDto.eventIds,
-    );
+    return this.bookingService.createBooking(createBookingDto);
   }
 
-  @MessagePattern(MessagePatterns.booking_create)
-  async createBookingMessagePattern(data: CreateBookingDto) {
-    return this.bookingService.createBooking(data.userId, data.eventIds);
+  @Put(':id/:userId')
+  @HttpCode(HttpStatus.OK)
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() updateBookingDto: UpdateBookingDto,
+  ) {
+    return this.bookingService.updateBooking(id, userId, updateBookingDto);
+  }
+
+  @Post(':id/:userId/cancel')
+  @HttpCode(HttpStatus.OK)
+  async cancel(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body('reason') reason: string,
+  ) {
+    return this.bookingService.cancelBooking(id, userId, reason);
   }
 
   @Get('user/:userId')
   @HttpCode(HttpStatus.OK)
-  async getUserBookingsHttp(@Param('userId') userId: string) {
-    this.logger.log(`Fetching bookings for user: ${userId}`);
+  async getUserBookings(@Param('userId', ParseUUIDPipe) userId: string) {
     return this.bookingService.findByUserId(userId);
   }
 
-  @MessagePattern(MessagePatterns.booking_get_user)
-  async getUserBookingsMessagePattern(userId: string) {
-    return this.bookingService.findByUserId(userId);
+  @MessagePattern(MessagePatterns.booking_create)
+  async createBookingMessage(@Payload() createBookingDto: CreateBookingDto) {
+    return this.bookingService.createBooking(createBookingDto);
   }
 
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  async getBookingHttp(@Param('id') id: string) {
-    this.logger.log(`Fetching booking: ${id}`);
-    return this.bookingService.findById(id);
-  }
-
-  @MessagePattern(MessagePatterns.booking_get)
-  async getBookingMessagePattern(id: string) {
-    return this.bookingService.findById(id);
+  @MessagePattern(MessagePatterns.booking_update)
+  async updateBookingMessage(
+    @Payload()
+    data: {
+      id: string;
+      userId: string;
+      updateDto: UpdateBookingDto;
+    },
+  ) {
+    return this.bookingService.updateBooking(
+      data.id,
+      data.userId,
+      data.updateDto,
+    );
   }
 }

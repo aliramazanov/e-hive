@@ -14,7 +14,7 @@ export class ValidationService {
 
   constructor(
     @Inject('RABBITMQ_CLIENT')
-    private readonly eventClient: RabbitMQService,
+    private readonly rmqService: RabbitMQService,
   ) {}
 
   async validateEvents(eventIds: string[]): Promise<void> {
@@ -23,34 +23,34 @@ export class ValidationService {
     try {
       const validationPromises = eventIds.map(async (eventId) => {
         this.logger.debug(`Validating event with ID: ${eventId}`);
-
-        const event = await this.eventClient.send(
+        const event = await this.rmqService.send(
           MessagePatterns.event_get,
           eventId,
         );
 
         if (!event) {
-          this.logger.error(`Event not found with ID: ${eventId}`);
-          throw new NotFoundException(`Event with ID ${eventId} not found`);
+          throw new NotFoundException(`Event not found`);
         }
 
-        this.logger.debug(`Event validated successfully: ${eventId}`, event);
+        const available = await this.rmqService.send(
+          MessagePatterns.event_check_availability,
+          eventId,
+        );
+
+        if (!available) {
+          throw new BadRequestException(`Event ${eventId} is at full capacity`);
+        }
+
         return event;
       });
 
       await Promise.all(validationPromises);
-      this.logger.debug('All events validated successfully');
     } catch (error) {
       this.logger.error('Event validation failed:', {
         error: error.message,
         stack: error.stack,
       });
-
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new BadRequestException('Failed to validate events');
+      throw error;
     }
   }
 
@@ -62,10 +62,11 @@ export class ValidationService {
     try {
       await Promise.all(
         eventIds.map((eventId) =>
-          this.eventClient.publish('booking_created', {
+          this.rmqService.publish(MessagePatterns.booking_create, {
             eventId,
             bookingId,
             userId,
+            timestamp: new Date(),
           }),
         ),
       );
@@ -73,6 +74,7 @@ export class ValidationService {
     } catch (error) {
       this.logger.warn(
         `Failed to notify events about booking: ${error.message}`,
+        error.stack,
       );
     }
   }

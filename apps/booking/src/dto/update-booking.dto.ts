@@ -1,4 +1,16 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateBookingDto } from './create-booking.dto';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { BookingStatus } from '../enum/booking-status.enum';
 
-export class UpdateBookingDto extends PartialType(CreateBookingDto) {}
+export class UpdateBookingDto {
+  @IsOptional()
+  @IsEnum(BookingStatus)
+  status?: BookingStatus;
+
+  @IsOptional()
+  @IsString()
+  cancellationReason?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}

@@ -37,6 +37,7 @@ export class EventService {
         organizerId,
         metadata: {},
         tags: createEventDto.tags || [],
+        isActive: true,
       });
 
       const savedEvent = await this.eventRepository.save(event);
@@ -46,6 +47,7 @@ export class EventService {
         organizerId: savedEvent.organizerId,
         capacity: savedEvent.capacity,
         date: savedEvent.date,
+        isActive: savedEvent.isActive,
       });
 
       this.logger.debug(`Successfully created event ${savedEvent.id}`);

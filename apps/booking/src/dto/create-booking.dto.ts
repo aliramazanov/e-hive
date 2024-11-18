@@ -1,12 +1,21 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateBookingDto {
+  @IsUUID()
   @IsNotEmpty()
-  @IsString()
   userId: string;
- 
+
   @IsArray()
-  @IsString({ each: true })
-  @IsNotEmpty({ each: true })
+  @IsUUID('4', { each: true })
   eventIds: string[];
- }
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
