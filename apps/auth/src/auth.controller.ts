@@ -11,13 +11,13 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-import { CurrentUser } from './decorators/current-user.decorator';
+import { AuthUser, CurrentUser } from './decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Public } from './guards/public.decorator';
-import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
@@ -55,13 +55,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@CurrentUser() user: any) {
+  async login(@CurrentUser() user: AuthUser) {
     this.logger.debug(`Login request for user: ${user.email}`);
     return this.authService.login(user);
   }
 
   @MessagePattern(MessagePatterns.auth_login)
-  async loginMessagePattern(user: any) {
+  async loginMessagePattern(user: AuthUser) {
     return this.authService.login(user);
   }
 
@@ -80,26 +80,30 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('verify')
   @HttpCode(HttpStatus.OK)
-  verify(@CurrentUser() user: any) {
+  verify(@CurrentUser() user: AuthUser) {
     this.logger.debug(`Verify credentials request for user: ${user.email}`);
     return { status: 'ok', user };
   }
 
   @MessagePattern(MessagePatterns.auth_verify)
-  async verifyMessagePattern(user: any) {
+  async verifyMessagePattern(user: AuthUser) {
     return { status: 'ok', user };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   @HttpCode(HttpStatus.OK)
-  getProfile(@CurrentUser() user: any) {
-    this.logger.debug(`Profile data request for user: ${user.email}`);
-    return user;
+  getProfile(@CurrentUser() user: AuthUser) {
+    this.logger.debug(`Profile data request for user: ${user.id}`);
+    return {
+      id: user.id,
+      userId: user.userId,
+      email: user.email,
+    };
   }
 
   @MessagePattern(MessagePatterns.auth_profile)
-  async getProfileMessagePattern(user: any) {
+  async getProfileMessagePattern(user: AuthUser) {
     return user;
   }
 

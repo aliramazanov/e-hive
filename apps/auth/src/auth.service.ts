@@ -13,6 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
+import { AuthUser } from './decorators/current-user.decorator';
 import { EmailService } from './email/email.service';
 import { Auth } from './entity/auth.entity';
 
@@ -28,6 +29,14 @@ export class AuthService {
     private readonly rmqService: RabbitMQService,
     private readonly emailService: EmailService,
   ) {}
+
+  private mapAuthToAuthUser(auth: Auth): AuthUser {
+    return {
+      id: auth.id,
+      userId: auth.userId,
+      email: auth.email,
+    };
+  }
 
   async register(createUserDto: { email: string; password: string }) {
     this.logger.debug(`Processing register for email: ${createUserDto.email}`);
@@ -131,11 +140,20 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
-    this.logger.debug(`Processing login for user: ${user.email}`);
+  async login(userOrAuth: Auth | AuthUser) {
+    this.logger.debug(`Processing login for user: ${userOrAuth.email}`);
 
     try {
-      const payload = { email: user.email, sub: user.id };
+      const user: AuthUser =
+        'userId' in userOrAuth
+          ? (userOrAuth as AuthUser)
+          : this.mapAuthToAuthUser(userOrAuth as Auth);
+
+      const payload = {
+        email: user.email,
+        sub: user.id,
+        userId: user.userId,
+      };
 
       const accessToken = this.jwtService.sign(payload);
       const refreshToken = this.jwtService.sign(payload, {
@@ -145,7 +163,7 @@ export class AuthService {
 
       const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-      await this.authRepository.update(user.id, {
+      await this.authRepository.update(payload.sub, {
         refreshToken: hashedRefreshToken,
       });
 
@@ -155,7 +173,8 @@ export class AuthService {
         access_token: accessToken,
         refresh_token: refreshToken,
         user: {
-          id: user.userId,
+          id: user.id,
+          userId: user.userId,
           email: user.email,
         },
       };
@@ -165,14 +184,18 @@ export class AuthService {
     }
   }
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<AuthUser | null> {
     this.logger.debug(`Validating user: ${email}`);
     const auth = await this.authRepository.findOne({ where: { email } });
 
     if (auth && (await bcrypt.compare(password, auth.password))) {
-      const { password, ...result } = auth;
+      const { password: _, ...result } = auth;
       this.logger.debug(`User validated successfully: ${email}`);
-      return result;
+
+      return this.mapAuthToAuthUser(auth);
     }
 
     this.logger.debug(`User validation failed: ${email}`);
@@ -208,12 +231,12 @@ export class AuthService {
 
       if (!auth) {
         this.logger.debug(`No account found for email: ${email}`);
-        return; // Don't reveal whether the email exists
+        return;
       }
 
       const resetToken = randomBytes(32).toString('hex');
       const expiry = new Date();
-      expiry.setHours(expiry.getHours() + 1); // Token expires in 1 hour
+      expiry.setHours(expiry.getHours() + 1);
 
       auth.passwordResetToken = resetToken;
       auth.passwordResetTokenExpiry = expiry;
