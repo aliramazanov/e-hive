@@ -28,9 +28,7 @@
 - Authentication: JWT with Passport
 - Email Service: Nodemailer & OAuth 2.0
 
-
-![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2580643e45142f1a6.svg "Repo analytics image")
-
+![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2580643e45142f1a6.svg 'Repo analytics image')
 
 ## Note on Secret Files
 
@@ -43,6 +41,10 @@
 
 - The Auth Service is responsible for sign-up, login, and token management using JWT.
 - It communicates with other microservices over RabbitMQ for decoupled messaging.
+
+### Swagger UI <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9GlozyrEsA25S68xqsWEgejZkSQPi2L7SBw&s" width="20" alt="Swagger Logo">
+
+- http://localhost/api/auth/docs
 
 #### Configuration for Email Secrets
 
