@@ -1,0 +1,1104 @@
+{
+	"info": {
+		"_postman_id": "e3656ace-3b94-4454-9f0e-70d3c380b71f",
+		"name": "E-Hive",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29487700"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has required fields\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('access_token');",
+									"    pm.expect(responseData).to.have.property('refresh_token');",
+									"    pm.expect(responseData.user).to.have.property('id');",
+									"    pm.expect(responseData.user).to.have.property('email');",
+									"",
+									"    pm.environment.set('currentAccessToken', responseData.access_token);",
+									"    pm.environment.set('currentRefreshToken', responseData.refresh_token);",
+									"    pm.environment.set('currentUserId', responseData.user.id);",
+									"    pm.environment.set('currentUserEmail', responseData.user.email);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"x@mail.com\",\n    \"password\": \"{{testPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"yourtoken\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Login successful\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('access_token');",
+									"    pm.expect(responseData).to.have.property('refresh_token');",
+									"",
+									"    pm.environment.set('currentAccessToken', responseData.access_token);",
+									"    pm.environment.set('currentRefreshToken', responseData.refresh_token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{currentUserEmail}}\",\n    \"password\": \"{{testPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"New tokens received\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('access_token');",
+									"    pm.expect(responseData).to.have.property('refresh_token');",
+									"",
+									"    pm.environment.set('currentAccessToken', responseData.access_token);",
+									"    pm.environment.set('currentRefreshToken', responseData.refresh_token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{currentRefreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Token is valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData.status).to.eql('ok');",
+									"    pm.expect(responseData).to.have.property('user');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile data is present\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('email');",
+									"    pm.expect(responseData).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/auth/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Reset email sent\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{currentUserEmail}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"yourtoken\",\n    \"newPassword\": \"{{newPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile data is valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('id');",
+									"    pm.expect(responseData).to.have.property('email');",
+									"    pm.expect(responseData).to.have.property('username');",
+									"    pm.expect(responseData).to.have.property('isActive');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/{{currentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"{{currentUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile updated successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    const requestData = JSON.parse(pm.request.body.raw);",
+									"",
+									"    if (requestData.firstName) {",
+									"        pm.expect(responseData.firstName).to.eql(requestData.firstName);",
+									"    }",
+									"    if (requestData.lastName) {",
+									"        pm.expect(responseData.lastName).to.eql(requestData.lastName);",
+									"    }",
+									"    if (requestData.username) {",
+									"        pm.expect(responseData.username).to.eql(requestData.username);",
+									"        pm.environment.set('lastCreatedUsername', responseData.username);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"{{$randomFirstName}}\",\n    \"lastName\": \"{{$randomLastName}}\",\n    \"username\": \"user_{{$randomAlphaNumeric}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/{{currentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"{{currentUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Search response is valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('users').that.is.an('array');",
+									"    pm.expect(responseData).to.have.property('metadata');",
+									"    pm.expect(responseData.metadata).to.have.property('total');",
+									"    pm.expect(responseData.metadata).to.have.property('page');",
+									"    pm.expect(responseData.metadata).to.have.property('limit');",
+									"    pm.expect(responseData.metadata).to.have.property('totalPages');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/search",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"search"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "{{lastCreatedUsername}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Create Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Users created successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    responseData.forEach(user => {",
+									"        pm.expect(user).to.have.property('id');",
+									"        pm.expect(user).to.have.property('email');",
+									"        pm.expect(user).to.have.property('isActive').to.be.true;",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"users\": [\n        { \"email\": \"{{$randomEmail}}\" },\n        { \"email\": \"{{$randomEmail}}\" }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/bulk",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Inactive Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Deactivation successful\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('deactivatedCount');",
+									"    pm.expect(responseData.deactivatedCount).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"daysInactive\": 60\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/deactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"deactivate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{currentAccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/{{currentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"{{currentUserId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "Create Event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Tech Conference 2024\",\n    \"description\": \"Annual Tech Conference\",\n    \"date\": \"2024-12-15T09:00:00.000Z\",\n    \"location\": \"Convention Center\",\n    \"capacity\": 500,\n    \"organizerId\": \"2516791a-4dba-4ba0-82a0-dbb928389763\",\n    \"tags\": [\"technology\", \"conference\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "date",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								},
+								{
+									"key": "organizerId",
+									"value": "{{organizerId}}",
+									"disabled": true
+								},
+								{
+									"key": "dateFrom",
+									"value": "2024-01-01T00:00:00.000Z",
+									"disabled": true
+								},
+								{
+									"key": "dateTo",
+									"value": "2024-12-31T23:59:59.999Z",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Event",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Tech Conference 2024\",\n    \"description\": \"Updated Annual Tech Conference\",\n    \"capacity\": 600,\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/{{organizerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"{{organizerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Event",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/{{organizerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"{{organizerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/my-events/{{organizerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"my-events",
+								"{{organizerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upcoming Events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/upcoming",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"upcoming"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Events Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event?tags[]=technology&tags[]=conference",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event"
+							],
+							"query": [
+								{
+									"key": "tags[]",
+									"value": "technology"
+								},
+								{
+									"key": "tags[]",
+									"value": "conference"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Events Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event"
+							],
+							"query": [
+								{
+									"key": "dateFrom",
+									"value": "2024-01-01T00:00:00.000Z",
+									"disabled": true
+								},
+								{
+									"key": "dateTo",
+									"value": "2024-12-31T23:59:59.999Z",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "Create Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"2516791a-4dba-4ba0-82a0-dbb928389763\",\n    \"eventIds\": [\"4f7f1b9a-4d3a-43e4-ba43-7f159fcb9e8a\"],\n    \"notes\": \"Test booking\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Bookings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/booking/user/{{currentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"booking",
+								"user",
+								"{{currentUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"confirmed\",\n    \"notes\": \"Updated booking notes\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/booking/{{lastCreatedEventId}}/{{currentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"booking",
+								"{{lastCreatedEventId}}",
+								"{{currentUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reason\": \"No time to attend\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/booking/{{lastCreatedEventId}}/{{currentUserId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"booking",
+								"{{lastCreatedEventId}}",
+								"{{currentUserId}}",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
