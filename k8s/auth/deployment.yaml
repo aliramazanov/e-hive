@@ -44,7 +44,7 @@ spec:
             - secretRef:
                 name: rabbitmq-secret
             - secretRef:
-                name: jwt-secret
+                name: jwt-secret-ehive
             - configMapRef:
                 name: email-config
             - secretRef:
