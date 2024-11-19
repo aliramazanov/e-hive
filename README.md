@@ -42,7 +42,7 @@
 - The Auth Service is responsible for sign-up, login, and token management using JWT.
 - It communicates with other microservices over RabbitMQ for decoupled messaging.
 
-### <img src="https://static-00.iconduck.com/assets.00/swagger-icon-1024x1024-09037v1r.png" width="20" style="margin-right: 20px;" alt="Swagger Logo"> Swagger UI
+### <img src="https://static-00.iconduck.com/assets.00/swagger-icon-1024x1024-09037v1r.png" width="20" alt="Swagger Logo"> &nbsp; &nbsp; &nbsp; Swagger UI
 
 - http://localhost/api/auth/docs
 
