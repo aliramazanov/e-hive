@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://nestjs.com/img/logo-small.svg" width="80" height="80" alt="NestJS Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png" width="75" height="75" alt="RabbitMQ Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="80" height="80" alt="PostgreSQL Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" width="80" height="80" alt="Kubernetes Logo" />
+  <img src="https://nestjs.com/img/logo-small.svg" width="90" height="90" alt="NestJS Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png" width="85" height="85" alt="RabbitMQ Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="90" height="90" alt="PostgreSQL Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" width="90" height="90" alt="Kubernetes Logo" />
 </p>
 
 # E-Hive
@@ -30,7 +30,7 @@
 - Authentication: JWT with Passport
 - Email Service: Nodemailer & OAuth 2.0
 
-![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2580643e45142f1a6.svg 'Repo analytics image')
+![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2590643e45142f1a6.svg 'Repo analytics image')
 
 ## Note on Secret Files
 
@@ -62,14 +62,8 @@ stringData:
 
 ## Swagger OpenAPI
 
-<div>
-  <h3 style="display: flex; align-items: center; gap: 15px;">
-    <img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" height="35" alt="Swagger Logo" style="vertical-align: middle;" />
-    <span>Swagger OpenAPI</span>
-  </h3>
-  <p style="display: flex; align-items: center; gap: 10px; margin-left: 25px;">
-    <span>Swagger UI Access:</span>
-  </p>
-</div>
+# <img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" width="35" height="35" alt="Swagger Logo" />&nbsp;&nbsp;Swagger OpenAPI
+
+### &nbsp;&nbsp;&nbsp;&nbsp;Swagger UI Access:
 
 - http://localhost/api/auth/docs
