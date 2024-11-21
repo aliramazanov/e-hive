@@ -62,7 +62,7 @@ stringData:
 
 ## Swagger OpenAPI
 
-# <img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" width="35" height="35" alt="Swagger Logo" />&nbsp;&nbsp;Swagger OpenAPI
+<img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" width="35" height="35" alt="Swagger Logo" style="vertical-align: middle;" />  Swagger OpenAPI
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;Swagger UI Access:
 
