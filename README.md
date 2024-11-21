@@ -60,10 +60,10 @@ stringData:
   GMAIL_REFRESH_TOKEN: 'your-refresh-token'
 ```
 
-## Swagger OpenAPI
-
 ## <img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" width="35" height="35" alt="Swagger Logo" style="vertical-align: middle;" /> 
 
-### Swagger UI Access:
+## Swagger OpenAPI
+
+### Swagger UI Access for Auth:
 
 - http://localhost/api/auth/docs
