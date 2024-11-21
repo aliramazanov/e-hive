@@ -1,9 +1,9 @@
-<div align="center">
-  <img src="https://nestjs.com/img/logo-small.svg" height="70" alt="NestJS Logo" style="margin: 0 35px;" />
-  <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png" height="70" alt="RabbitMQ Logo" style="margin: 0 35px;" />
-  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" height="70" alt="PostgreSQL Logo" style="margin: 0 35px;" />
-  <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" height="70" alt="Kubernetes Logo" style="margin: 0 35px;" />
-</div>
+<p align="center">
+  <img src="https://nestjs.com/img/logo-small.svg" width="80" height="80" alt="NestJS Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png" width="75" height="75" alt="RabbitMQ Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" width="80" height="80" alt="PostgreSQL Logo" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" width="80" height="80" alt="Kubernetes Logo" />
+</p>
 
 # E-Hive
 
@@ -62,6 +62,14 @@ stringData:
 
 ## Swagger OpenAPI
 
-### <img src="https://pbs.twimg.com/profile_images/1451297216187011072/xLd1JSZk_400x400.png" width="45" style="margin-bottom:5px; vertical-align:middle;" alt="Swagger Logo">&nbsp;&nbsp;Swagger UI Access:
+<div>
+  <h3 style="display: flex; align-items: center; gap: 15px;">
+    <img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" height="35" alt="Swagger Logo" style="vertical-align: middle;" />
+    <span>Swagger OpenAPI</span>
+  </h3>
+  <p style="display: flex; align-items: center; gap: 10px; margin-left: 25px;">
+    <span>Swagger UI Access:</span>
+  </p>
+</div>
 
 - http://localhost/api/auth/docs
