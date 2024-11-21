@@ -2,7 +2,7 @@
   <img src="https://nestjs.com/img/logo-small.svg" width="75" alt="Nest Logo" style="vertical-align:middle; margin-top:6px" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://www.stackhero.io/assets/src/images/servicesLogos/openGraphVersions/rabbitmq.png?285ac559" style="vertical-align:middle; margin-left:0px" width="140" alt="RabbitMQ Logo">
   <img src="https://cdn.iconscout.com/icon/free/png-256/free-postgresql-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-freebies-pack-logos-icons-1175119.png?f=webp&w=256" style="vertical-align:middle; margin-right:35px; margin-top:8px" width="75" alt="Postgres Logo">
-  <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" style="vertical-align:middle; margin-top:6px" width="74" alt="Kubernetes Logo">
+  <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" style="vertical-align:middle; margin-top:6px; margin-left:35px " width="74" alt="Kubernetes Logo">
 </p>
 
 # E-Hive
