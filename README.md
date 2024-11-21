@@ -1,9 +1,28 @@
-<p align="center">
-  <img src="https://nestjs.com/img/logo-small.svg" width="75" alt="Nest Logo" style="vertical-align:middle; margin-top:6px" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://www.stackhero.io/assets/src/images/servicesLogos/openGraphVersions/rabbitmq.png?285ac559" style="vertical-align:middle; margin-left:0px" width="140" alt="RabbitMQ Logo">
-  <img src="https://cdn.iconscout.com/icon/free/png-256/free-postgresql-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-freebies-pack-logos-icons-1175119.png?f=webp&w=256" style="vertical-align:middle; margin-right:35px; margin-top:8px" width="75" alt="Postgres Logo">
-  <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" style="vertical-align:middle; margin-top:6px; margin-left:35px " width="74" alt="Kubernetes Logo">
-</p>
+<div style="display: flex; flex-direction: row; align-items: center; gap: 40px; padding: 20px; justify-content:center">
+  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+    <img src="https://nestjs.com/img/logo-small.svg" 
+         alt="NestJS Logo" 
+         style="max-width: 100%; max-height: 100%; object-fit: contain;">
+  </div>
+  
+  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+    <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png"
+         alt="RabbitMQ Logo" 
+         style="max-width: 90%; max-height: 90%; object-fit: contain;">
+  </div>
+  
+  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+    <img src="https://www.postgresql.org/media/img/about/press/elephant.png" 
+         alt="PostgreSQL Logo" 
+         style="max-width: 85%; max-height: 85%; object-fit: contain;">
+  </div>
+  
+  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+    <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" 
+         alt="Kubernetes Logo" 
+         style="max-width: 80%; max-height: 80%; object-fit: contain;">
+  </div>
+</div>
 
 # E-Hive
 
