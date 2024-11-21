@@ -30,7 +30,7 @@
 - Authentication: JWT with Passport
 - Email Service: Nodemailer & OAuth 2.0
 
-![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2590643e45142f1a6.svg 'Repo analytics image')
+![Alt](https://repobeats.axiom.co/api/embed/c7f2aabb83bf51e8997007f2580643e45142f1a6.svg 'Repobeats analytics image')
 
 ## Note on Secret Files
 
@@ -62,8 +62,8 @@ stringData:
 
 ## Swagger OpenAPI
 
-<img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" width="35" height="35" alt="Swagger Logo" style="vertical-align: middle;" />  Swagger OpenAPI
+## <img src="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" width="35" height="35" alt="Swagger Logo" style="vertical-align: middle;" /> 
 
-### &nbsp;&nbsp;&nbsp;&nbsp;Swagger UI Access:
+### Swagger UI Access:
 
 - http://localhost/api/auth/docs
