@@ -20,6 +20,8 @@ import { Auth } from './entity/auth.entity';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly operation_timeout = 10000;
+  private readonly hash_rounds = 10;
 
   constructor(
     @InjectRepository(Auth)
@@ -38,29 +40,69 @@ export class AuthService {
     };
   }
 
-  async register(createUserDto: { email: string; password: string }) {
-    this.logger.debug(`Processing register for email: ${createUserDto.email}`);
+  private async timeoutPromise<T>(
+    promise: Promise<T>,
+    timeoutMs: number,
+    operation: string,
+  ): Promise<T> {
+    let timeoutId: NodeJS.Timeout;
+
+    const timeoutPromise = new Promise<T>((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(
+          new Error(`${operation} operation timed out after ${timeoutMs}ms`),
+        );
+      }, timeoutMs);
+    });
 
     try {
-      const existingAuth = await this.authRepository.findOne({
-        where: { email: createUserDto.email },
-      });
+      const result = await Promise.race([promise, timeoutPromise]);
+      clearTimeout(timeoutId);
+      return result;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  }
+
+  async register(createUserDto: { email: string; password: string }) {
+    this.logger.debug(`Processing register for email: ${createUserDto.email}`);
+    const startTime = Date.now();
+
+    try {
+      const existingAuth = await this.timeoutPromise(
+        this.authRepository.findOne({
+          where: { email: createUserDto.email },
+        }),
+        this.operation_timeout,
+        'Check existing user',
+      );
 
       if (existingAuth) {
         this.logger.warn(`Email already registered: ${createUserDto.email}`);
         throw new ConflictException('Email already registered');
       }
 
-      const userId = await this.rmqService.send(MessagePatterns.user_create, {
-        email: createUserDto.email,
-      });
+      const [hashedPassword, userId] = await Promise.all([
+        this.timeoutPromise(
+          bcrypt.hash(createUserDto.password, this.hash_rounds),
+          this.operation_timeout,
+          'Password hashing',
+        ),
+        this.timeoutPromise(
+          this.rmqService.send(MessagePatterns.user_create, {
+            email: createUserDto.email,
+          }),
+          this.operation_timeout,
+          'User creation',
+        ),
+      ]);
 
       if (!userId) {
-        this.logger.error(`Failed to create user in user service ${userId}`);
+        this.logger.error(`Failed to create user in user service`);
         throw new InternalServerErrorException('Failed to create user');
       }
 
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       const emailVerificationToken = randomBytes(32).toString('hex');
 
       const auth = this.authRepository.create({
@@ -71,18 +113,35 @@ export class AuthService {
         isEmailVerified: false,
       });
 
-      await this.authRepository.save(auth);
-
-      await this.emailService.sendVerificationEmail(
-        auth.email,
-        emailVerificationToken,
+      const savedAuth = await this.timeoutPromise(
+        this.authRepository.save(auth),
+        this.operation_timeout,
+        'Save auth record',
       );
 
-      this.logger.debug(`Registration successful for: ${createUserDto.email}`);
+      setImmediate(() => {
+        this.emailService
+          .sendVerificationEmail(auth.email, emailVerificationToken)
+          .catch((error) => {
+            this.logger.error(
+              `Failed to send verification email: ${error.message}`,
+              error.stack,
+            );
+          });
+      });
 
-      return this.login(auth);
+      const timeTaken = Date.now() - startTime;
+      this.logger.debug(
+        `Registration successful for: ${createUserDto.email}. Time taken: ${timeTaken}ms`,
+      );
+
+      return this.login(savedAuth);
     } catch (error) {
-      this.logger.error(`Registration failed: ${error.message}`, error.stack);
+      const timeTaken = Date.now() - startTime;
+      this.logger.error(
+        `Registration failed after ${timeTaken}ms: ${error.message}`,
+        error.stack,
+      );
 
       if (!(error instanceof ConflictException)) {
         try {
@@ -108,7 +167,9 @@ export class AuthService {
         throw error;
       }
 
-      throw new InternalServerErrorException('Registration failed');
+      throw new InternalServerErrorException(
+        'Registration failed. Please try again later.',
+      );
     }
   }
 
@@ -141,6 +202,7 @@ export class AuthService {
   }
 
   async login(userOrAuth: Auth | AuthUser) {
+    const startTime = Date.now();
     this.logger.debug(`Processing login for user: ${userOrAuth.email}`);
 
     try {
@@ -155,19 +217,40 @@ export class AuthService {
         userId: user.userId,
       };
 
-      const accessToken = this.jwtService.sign(payload);
-      const refreshToken = this.jwtService.sign(payload, {
-        secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-        expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION'),
-      });
+      const [accessToken, refreshToken] = await Promise.all([
+        this.timeoutPromise(
+          this.jwtService.signAsync(payload),
+          this.operation_timeout,
+          'Generate access token',
+        ),
+        this.timeoutPromise(
+          this.jwtService.signAsync(payload, {
+            secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+            expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION'),
+          }),
+          this.operation_timeout,
+          'Generate refresh token',
+        ),
+      ]);
 
-      const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+      const hashedRefreshToken = await this.timeoutPromise(
+        bcrypt.hash(refreshToken, this.hash_rounds),
+        this.operation_timeout,
+        'Hash refresh token',
+      );
 
-      await this.authRepository.update(payload.sub, {
-        refreshToken: hashedRefreshToken,
-      });
+      await this.timeoutPromise(
+        this.authRepository.update(payload.sub, {
+          refreshToken: hashedRefreshToken,
+        }),
+        this.operation_timeout,
+        'Update refresh token',
+      );
 
-      this.logger.debug(`Login successful for user: ${user.email}`);
+      const timeTaken = Date.now() - startTime;
+      this.logger.debug(
+        `Login successful for user: ${user.email}. Time taken: ${timeTaken}ms`,
+      );
 
       return {
         access_token: accessToken,
@@ -179,8 +262,12 @@ export class AuthService {
         },
       };
     } catch (error) {
-      this.logger.error(`Login failed: ${error.message}`, error.stack);
-      throw new InternalServerErrorException('Login failed');
+      const timeTaken = Date.now() - startTime;
+      this.logger.error(
+        `Login failed after ${timeTaken}ms: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Login failed. Please try again.');
     }
   }
 

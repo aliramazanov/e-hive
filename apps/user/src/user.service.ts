@@ -157,21 +157,53 @@ export class UserService {
   }
 
   async getUserProfile(id: string): Promise<User> {
+    const startTime = Date.now();
     this.logger.debug(`Fetching user profile for ID: ${id}`);
 
     try {
-      const user = await this.findById(id);
-      if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
-      }
+      const queryRunner =
+        this.userRepository.manager.connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
 
-      return user;
+      try {
+        const user = await queryRunner.manager
+          .createQueryBuilder(User, 'user')
+          .where('user.id = :id AND user.isActive = :isActive', {
+            id,
+            isActive: true,
+          })
+          .setLock('pessimistic_read')
+          .getOne();
+
+        if (!user) {
+          throw new NotFoundException(`User with ID ${id} not found`);
+        }
+
+        await queryRunner.commitTransaction();
+
+        const duration = Date.now() - startTime;
+        this.logger.debug(`Profile fetch successful. Duration: ${duration}ms`);
+
+        return user;
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
     } catch (error) {
+      const duration = Date.now() - startTime;
       this.logger.error(
-        `Failed to get user profile: ${error.message}`,
+        `Profile fetch failed. Duration: ${duration}ms, Error: ${error.message}`,
         error.stack,
       );
-      throw error;
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to fetch user profile');
     }
   }
 

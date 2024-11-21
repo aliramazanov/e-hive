@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="110" alt="Kubernetes Logo">
+  <img src="https://nestjs.com/img/logo-small.svg" width="75" alt="Nest Logo" style="vertical-align:middle; margin-top:6px" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://www.stackhero.io/assets/src/images/servicesLogos/openGraphVersions/rabbitmq.png?285ac559" style="vertical-align:middle; margin-left:0px" width="140" alt="RabbitMQ Logo">
+  <img src="https://cdn.iconscout.com/icon/free/png-256/free-postgresql-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-freebies-pack-logos-icons-1175119.png?f=webp&w=256" style="vertical-align:middle; margin-right:35px; margin-top:8px" width="75" alt="Postgres Logo">
+  <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" style="vertical-align:middle; margin-top:6px" width="74" alt="Kubernetes Logo">
 </p>
 
 # E-Hive
@@ -42,10 +44,6 @@
 - The Auth Service is responsible for sign-up, login, and token management using JWT.
 - It communicates with other microservices over RabbitMQ for decoupled messaging.
 
-### <img src="https://static-00.iconduck.com/assets.00/swagger-icon-1024x1024-09037v1r.png" width="20" alt="Swagger Logo"> &nbsp; Swagger UI
-
-- http://localhost/api/auth/docs
-
 #### Configuration for Email Secrets
 
 You need to configure `email-config.yaml` file and create your own `email-secret.yaml` to securely handle email credentials. Here's how to configure it:
@@ -61,3 +59,9 @@ stringData:
   GMAIL_CLIENT_SECRET: 'your-client-secret'
   GMAIL_REFRESH_TOKEN: 'your-refresh-token'
 ```
+
+## Swagger OpenAPI
+
+### <img src="https://pbs.twimg.com/profile_images/1451297216187011072/xLd1JSZk_400x400.png" width="45" style="margin-bottom:5px; vertical-align:middle;" alt="Swagger Logo">&nbsp;&nbsp;Swagger UI Access:
+
+- http://localhost/api/auth/docs

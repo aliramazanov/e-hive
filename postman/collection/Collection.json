@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e3656ace-3b94-4454-9f0e-70d3c380b71f",
+		"_postman_id": "ba019354-00bc-495a-815d-b0643bfa14b4",
 		"name": "E-Hive",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "29487700"
@@ -36,6 +36,19 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.environment.get('currentUserEmail')) {",
+									"    const randomEmail = 'test' + Date.now() + '@example.com';",
+									"    pm.environment.set('currentUserEmail', randomEmail);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -48,7 +61,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"x@mail.com\",\n    \"password\": \"{{testPassword}}\"\n}"
+							"raw": "{\n    \"email\": \"{{currentUserEmail}}\",\n    \"password\": \"{{testPassword}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/register",
@@ -74,8 +87,7 @@
 									"    pm.response.to.have.status(200);",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -89,7 +101,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"token\": \"yourtoken\"\n}"
+							"raw": "{\n    \"token\": \"{{verificationToken}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/verify-email",
@@ -119,10 +131,13 @@
 									"    const responseData = pm.response.json();",
 									"    pm.expect(responseData).to.have.property('access_token');",
 									"    pm.expect(responseData).to.have.property('refresh_token');",
+									"    pm.expect(responseData.user).to.have.property('userId'); ",
 									"",
 									"    pm.environment.set('currentAccessToken', responseData.access_token);",
 									"    pm.environment.set('currentRefreshToken', responseData.refresh_token);",
-									"});"
+									"    pm.environment.set('currentUserId', responseData.user.userId); ",
+									"});",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -174,8 +189,29 @@
 									"    pm.environment.set('currentRefreshToken', responseData.refresh_token);",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Check if access token is expired and needs refresh",
+									"const accessToken = pm.environment.get('currentAccessToken');",
+									"if (accessToken) {",
+									"    try {",
+									"        const payload = JSON.parse(atob(accessToken.split('.')[1]));",
+									"        const expiryTime = payload.exp * 1000; // Convert to milliseconds",
+									"        ",
+									"        if (Date.now() >= expiryTime) {",
+									"            console.log('Access token expired, refreshing...');",
+									"        }",
+									"    } catch (e) {",
+									"        console.error('Error checking token expiry:', e);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -221,19 +257,23 @@
 									"    pm.expect(responseData).to.have.property('user');",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/auth/verify",
 							"host": [
@@ -264,19 +304,23 @@
 									"    pm.expect(responseData).to.have.property('id');",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/auth/profile",
 							"host": [
@@ -306,8 +350,7 @@
 									"    pm.expect(responseData).to.have.property('message');",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -347,8 +390,7 @@
 									"    pm.response.to.have.status(200);",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -362,7 +404,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"token\": \"yourtoken\",\n    \"newPassword\": \"{{newPassword}}\"\n}"
+							"raw": "{\n    \"token\": \"{{resetToken}}\",\n    \"newPassword\": \"{{newPassword}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/auth/reset-password",
@@ -401,19 +443,23 @@
 									"    pm.expect(responseData).to.have.property('isActive');",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/user/{{currentUserId}}",
 							"host": [
@@ -454,18 +500,35 @@
 									"    }",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate random user data",
+									"pm.environment.set('randomFirstName', pm.variables.replaceIn('{{$randomFirstName}}'));",
+									"pm.environment.set('randomLastName', pm.variables.replaceIn('{{$randomLastName}}'));",
+									"pm.environment.set('randomUsername', 'user_' + pm.variables.replaceIn('{{$randomAlphaNumeric}}'));"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json"
@@ -473,7 +536,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"firstName\": \"{{$randomFirstName}}\",\n    \"lastName\": \"{{$randomLastName}}\",\n    \"username\": \"user_{{$randomAlphaNumeric}}\"\n}"
+							"raw": "{\n    \"firstName\": \"{{randomFirstName}}\",\n    \"lastName\": \"{{randomLastName}}\",\n    \"username\": \"{{randomUsername}}\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/user/{{currentUserId}}",
@@ -515,15 +578,20 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							}
-						],
+						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/user/search",
+							"raw": "{{baseUrl}}/user/search?search={{lastCreatedUsername}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -534,18 +602,17 @@
 							"query": [
 								{
 									"key": "page",
-									"value": "2",
+									"value": "{{defaultPageOffset}}",
 									"disabled": true
 								},
 								{
 									"key": "limit",
-									"value": "10",
+									"value": "{{defaultPageLimit}}",
 									"disabled": true
 								},
 								{
 									"key": "search",
-									"value": "{{lastCreatedUsername}}",
-									"disabled": true
+									"value": "{{lastCreatedUsername}}"
 								}
 							]
 						}
@@ -573,18 +640,36 @@
 									"    });",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate random emails for bulk creation",
+									"const email1 = pm.variables.replaceIn('{{$randomEmail}}');",
+									"const email2 = pm.variables.replaceIn('{{$randomEmail}}');",
+									"pm.environment.set('bulkEmail1', email1);",
+									"pm.environment.set('bulkEmail2', email2);"
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json"
@@ -592,7 +677,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"users\": [\n        { \"email\": \"{{$randomEmail}}\" },\n        { \"email\": \"{{$randomEmail}}\" }\n    ]\n}"
+							"raw": "{\n    \"users\": [\n        { \"email\": \"{{bulkEmail1}}\" },\n        { \"email\": \"{{bulkEmail2}}\" }\n    ]\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/user/bulk",
@@ -624,18 +709,23 @@
 									"    pm.expect(responseData.deactivatedCount).to.be.a('number');",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json"
@@ -669,19 +759,23 @@
 									"    pm.response.to.have.status(204);",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{currentAccessToken}}"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/user/{{currentUserId}}",
 							"host": [
@@ -702,13 +796,52 @@
 			"item": [
 				{
 					"name": "Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Event created successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('id');",
+									"    pm.expect(responseData).to.have.property('title');",
+									"    pm.expect(responseData).to.have.property('organizerId');",
+									"",
+									"    pm.environment.set('lastCreatedEventId', responseData.id);",
+									"    pm.environment.set('eventId', responseData.id);",
+									"    pm.environment.set('organizerId', responseData.organizerId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate event data",
+									"const futureDate = new Date();",
+									"futureDate.setDate(futureDate.getDate() + 30);",
+									"pm.environment.set('futureEventDate', futureDate.toISOString());",
+									"",
+									"pm.environment.set('eventTitle', 'Tech Conference ' + pm.variables.replaceIn('{{$randomInt}}'));",
+									"pm.environment.set('eventLocation', pm.variables.replaceIn('{{$randomCity}}') + ' Convention Center');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"value": "{{currentAccessToken}}",
 									"type": "string"
 								}
 							]
@@ -722,7 +855,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Tech Conference 2024\",\n    \"description\": \"Annual Tech Conference\",\n    \"date\": \"2024-12-15T09:00:00.000Z\",\n    \"location\": \"Convention Center\",\n    \"capacity\": 500,\n    \"organizerId\": \"2516791a-4dba-4ba0-82a0-dbb928389763\",\n    \"tags\": [\"technology\", \"conference\"]\n}"
+							"raw": "{\n    \"title\": \"{{eventTitle}}\",\n    \"description\": \"Annual Tech Conference\",\n    \"date\": \"{{futureEventDate}}\",\n    \"location\": \"{{eventLocation}}\",\n    \"capacity\": {{defaultEventCapacity}},\n    \"organizerId\": \"{{currentUserId}}\",\n    \"tags\": [\"technology\", \"conference\"]\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/event",
@@ -738,7 +871,41 @@
 				},
 				{
 					"name": "Get All Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Events list is valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    if (responseData.length > 0) {",
+									"        pm.expect(responseData[0]).to.have.property('id');",
+									"        pm.expect(responseData[0]).to.have.property('title');",
+									"        pm.expect(responseData[0]).to.have.property('organizerId');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -752,12 +919,12 @@
 							"query": [
 								{
 									"key": "limit",
-									"value": "10",
+									"value": "{{defaultPageLimit}}",
 									"disabled": true
 								},
 								{
 									"key": "offset",
-									"value": "0",
+									"value": "{{defaultPageOffset}}",
 									"disabled": true
 								},
 								{
@@ -769,21 +936,6 @@
 									"key": "sortOrder",
 									"value": "DESC",
 									"disabled": true
-								},
-								{
-									"key": "organizerId",
-									"value": "{{organizerId}}",
-									"disabled": true
-								},
-								{
-									"key": "dateFrom",
-									"value": "2024-01-01T00:00:00.000Z",
-									"disabled": true
-								},
-								{
-									"key": "dateTo",
-									"value": "2024-12-31T23:59:59.999Z",
-									"disabled": true
 								}
 							]
 						}
@@ -792,7 +944,39 @@
 				},
 				{
 					"name": "Get Event by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Event details are valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('id');",
+									"    pm.expect(responseData).to.have.property('title');",
+									"    pm.expect(responseData).to.have.property('organizerId');",
+									"    pm.expect(responseData).to.have.property('capacity');",
+									"    pm.expect(responseData).to.have.property('location');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -810,7 +994,47 @@
 				},
 				{
 					"name": "Update Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Event updated successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    const requestData = JSON.parse(pm.request.body.raw);",
+									"    ",
+									"    pm.expect(responseData.title).to.eql(requestData.title);",
+									"    pm.expect(responseData.capacity).to.eql(requestData.capacity);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('updatedEventTitle', 'Updated ' + pm.environment.get('eventTitle'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [
 							{
@@ -820,7 +1044,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Updated Tech Conference 2024\",\n    \"description\": \"Updated Annual Tech Conference\",\n    \"capacity\": 600,\n    \"isActive\": true\n}"
+							"raw": "{\n    \"title\": \"{{updatedEventTitle}}\",\n    \"description\": \"Updated Annual Tech Conference\",\n    \"capacity\": 700,\n    \"isActive\": true\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/event/{{eventId}}/{{organizerId}}",
@@ -838,7 +1062,30 @@
 				},
 				{
 					"name": "Delete Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
@@ -857,18 +1104,51 @@
 				},
 				{
 					"name": "Get My Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"My events list is valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    if (responseData.length > 0) {",
+									"        pm.expect(responseData[0]).to.have.property('id');",
+									"        pm.expect(responseData[0]).to.have.property('title');",
+									"        pm.expect(responseData[0].organizerId).to.eql(pm.environment.get('currentUserId'));",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/event/my-events/{{organizerId}}",
+							"raw": "{{baseUrl}}/event/my-events/{{currentUserId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"event",
 								"my-events",
-								"{{organizerId}}"
+								"{{currentUserId}}"
 							]
 						}
 					},
@@ -876,7 +1156,40 @@
 				},
 				{
 					"name": "Upcoming Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Upcoming events are valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    if (responseData.length > 0) {",
+									"        const currentDate = new Date();",
+									"        const eventDate = new Date(responseData[0].date);",
+									"        pm.expect(eventDate.getTime()).to.be.at.least(currentDate.getTime());",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -894,7 +1207,39 @@
 				},
 				{
 					"name": "Events Tags",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Tagged events are valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    if (responseData.length > 0) {",
+									"        pm.expect(responseData[0]).to.have.property('tags');",
+									"        pm.expect(responseData[0].tags).to.be.an('array');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{currentAccessToken}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -918,35 +1263,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Events Date Range",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/event",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"event"
-							],
-							"query": [
-								{
-									"key": "dateFrom",
-									"value": "2024-01-01T00:00:00.000Z",
-									"disabled": true
-								},
-								{
-									"key": "dateTo",
-									"value": "2024-12-31T23:59:59.999Z",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -955,13 +1271,36 @@
 			"item": [
 				{
 					"name": "Create Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Booking created successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.have.property('id');",
+									"    pm.expect(responseData).to.have.property('userId');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData.status).to.eql('pending');",
+									"    pm.environment.set('bookingId', responseData.id); ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"value": "{{currentAccessToken}}",
 									"type": "string"
 								}
 							]
@@ -975,7 +1314,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userId\": \"2516791a-4dba-4ba0-82a0-dbb928389763\",\n    \"eventIds\": [\"4f7f1b9a-4d3a-43e4-ba43-7f159fcb9e8a\"],\n    \"notes\": \"Test booking\"\n}"
+							"raw": "{\n    \"userId\": \"{{currentUserId}}\",\n    \"eventIds\": [\"{{eventId}}\"],\n    \"notes\": \"Test booking\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/booking",
@@ -991,13 +1330,36 @@
 				},
 				{
 					"name": "Get User Bookings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"User bookings are valid\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    if (responseData.length > 0) {",
+									"        pm.expect(responseData[0]).to.have.property('id');",
+									"        pm.expect(responseData[0]).to.have.property('userId');",
+									"        pm.expect(responseData[0]).to.have.property('status');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"value": "{{currentAccessToken}}",
 									"type": "string"
 								}
 							]
@@ -1005,12 +1367,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/booking/user/{{currentUserId}}",
+							"raw": "{{baseUrl}}/booking/user/{{currentUserId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"booking",
 								"user",
 								"{{currentUserId}}"
@@ -1021,13 +1382,41 @@
 				},
 				{
 					"name": "Update Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Booking updated successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    const requestData = JSON.parse(pm.request.body.raw);",
+									"    pm.expect(responseData.status).to.eql(requestData.status);",
+									"    pm.expect(responseData.notes).to.eql(requestData.notes);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"value": "{{currentAccessToken}}",
 									"type": "string"
 								}
 							]
@@ -1044,14 +1433,13 @@
 							"raw": "{\n    \"status\": \"confirmed\",\n    \"notes\": \"Updated booking notes\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/booking/{{lastCreatedEventId}}/{{currentUserId}}",
+							"raw": "{{baseUrl}}/booking/{{bookingId}}/{{currentUserId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"booking",
-								"{{lastCreatedEventId}}",
+								"{{bookingId}}",
 								"{{currentUserId}}"
 							]
 						}
@@ -1060,13 +1448,32 @@
 				},
 				{
 					"name": "Cancel Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Booking cancelled successfully\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData.status).to.eql('cancelled');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWlybXpudkBnbWFpbC5jb20iLCJzdWIiOiIwNWYxYzAyOS1lZDUwLTRjZmYtYmMxOC1mZmI2NDQ2M2I1NTEiLCJpYXQiOjE3MzE5NTM4ODQsImV4cCI6MTczMTk1NDc4NH0.xfyYTg9yq0BqkC_VXkW-ciRNc8V--AJMJVqZz2SjNoQ",
+									"value": "{{currentAccessToken}}",
 									"type": "string"
 								}
 							]
@@ -1080,17 +1487,16 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"reason\": \"No time to attend\"\n}"
+							"raw": "{\n    \"reason\": \"Schedule conflict\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/booking/{{lastCreatedEventId}}/{{currentUserId}}/cancel",
+							"raw": "{{baseUrl}}/booking/{{bookingId}}/{{currentUserId}}/cancel",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"booking",
-								"{{lastCreatedEventId}}",
+								"{{bookingId}}",
 								"{{currentUserId}}",
 								"cancel"
 							]

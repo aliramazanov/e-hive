@@ -36,6 +36,7 @@ export class BookingController {
     @Param('userId', ParseUUIDPipe) userId: string,
     @Body() updateBookingDto: UpdateBookingDto,
   ) {
+    this.logger.log(`Updating booking ${id} for user ${userId}`);
     return this.bookingService.updateBooking(id, userId, updateBookingDto);
   }
 
@@ -46,6 +47,7 @@ export class BookingController {
     @Param('userId', ParseUUIDPipe) userId: string,
     @Body('reason') reason: string,
   ) {
+    this.logger.log(`Cancelling booking ${id} for user ${userId}`);
     return this.bookingService.cancelBooking(id, userId, reason);
   }
 
@@ -57,6 +59,9 @@ export class BookingController {
 
   @MessagePattern(MessagePatterns.booking_create)
   async createBookingMessage(@Payload() createBookingDto: CreateBookingDto) {
+    this.logger.log(
+      `Received booking creation message for user: ${createBookingDto.userId}`,
+    );
     return this.bookingService.createBooking(createBookingDto);
   }
 
@@ -69,6 +74,9 @@ export class BookingController {
       updateDto: UpdateBookingDto;
     },
   ) {
+    this.logger.log(
+      `Received booking update message for booking ${data.id}, user ${data.userId}`,
+    );
     return this.bookingService.updateBooking(
       data.id,
       data.userId,

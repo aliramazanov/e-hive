@@ -1,106 +1,201 @@
 {
-	"id": "04918483-883c-4be3-959a-a89acdfe7aa3",
+	"id": "1f48dc31-3673-45ce-9009-b6274831c266",
 	"name": "E-Hive Environment",
 	"values": [
 		{
 			"key": "baseUrl",
-			"value": "localhost/api",
+			"value": "http://localhost/api",
+			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "testEmail",
 			"value": "test@example.com",
+			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "testPassword",
-			"value": "Test123!@#",
+			"value": "SecurePass123!@#",
+			"type": "secret",
 			"enabled": true
 		},
 		{
 			"key": "newPassword",
-			"value": "Test123!@#",
+			"value": "NewSecurePass123!@#",
+			"type": "secret",
 			"enabled": true
 		},
 		{
 			"key": "currentAccessToken",
 			"value": "",
+			"type": "secret",
 			"enabled": true
 		},
 		{
 			"key": "currentRefreshToken",
 			"value": "",
+			"type": "secret",
 			"enabled": true
 		},
 		{
 			"key": "verificationToken",
 			"value": "",
+			"type": "secret",
 			"enabled": true
 		},
 		{
 			"key": "resetToken",
 			"value": "",
+			"type": "secret",
 			"enabled": true
 		},
 		{
 			"key": "currentUserId",
 			"value": "",
-			"enabled": true
-		},
-		{
-			"key": "lastCreatedUsername",
-			"value": "",
+			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "currentUserEmail",
 			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "lastCreatedUsername",
+			"value": "",
+			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "lastCreatedEventId",
 			"value": "",
-			"enabled": true
-		},
-		{
-			"key": "defaultEventCapacity",
-			"value": "100",
-			"enabled": true
-		},
-		{
-			"key": "defaultPageLimit",
-			"value": "10",
-			"enabled": true
-		},
-		{
-			"key": "defaultPageOffset",
-			"value": "0",
-			"enabled": true
-		},
-		{
-			"key": "testEventTitle",
-			"value": "Test Event",
-			"enabled": true
-		},
-		{
-			"key": "testEventLocation",
-			"value": "Test Location",
+			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "eventId",
 			"value": "",
-			"type": "any",
+			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "organizerId",
 			"value": "",
-			"type": "any",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "defaultEventCapacity",
+			"value": "100",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "defaultPageLimit",
+			"value": "10",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "defaultPageOffset",
+			"value": "0",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testEventTitle",
+			"value": "Test Event",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testEventLocation",
+			"value": "Test Location",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "randomFirstName",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "randomLastName",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "randomUsername",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "futureEventDate",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "eventTitle",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "eventLocation",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "updatedEventTitle",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "bulkEmail1",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "bulkEmail2",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "defaultSortField",
+			"value": "createdAt",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "defaultSortOrder",
+			"value": "DESC",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "tokenExpiryBuffer",
+			"value": "300",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "bookingId",
+			"value": "",
+			"type": "default",
 			"enabled": true
 		}
 	],
 	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2024-11-19T18:59:50.380Z",
+	"_postman_exported_at": "2024-11-21T20:06:53.216Z",
 	"_postman_exported_using": "Postman/11.20.0"
 }
