@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="https://nestjs.com/img/logo-small.svg" height="40" alt="NestJS Logo" style="margin: 0 20px;" />
-  <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png" height="40" alt="RabbitMQ Logo" style="margin: 0 20px;" />
-  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" height="40" alt="PostgreSQL Logo" style="margin: 0 20px;" />
-  <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" height="40" alt="Kubernetes Logo" style="margin: 0 20px;" />
+  <img src="https://nestjs.com/img/logo-small.svg" height="70" alt="NestJS Logo" style="margin: 0 35px;" />
+  <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png" height="70" alt="RabbitMQ Logo" style="margin: 0 35px;" />
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" height="70" alt="PostgreSQL Logo" style="margin: 0 35px;" />
+  <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" height="70" alt="Kubernetes Logo" style="margin: 0 35px;" />
 </div>
 
 # E-Hive
