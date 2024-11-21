@@ -1,23 +1,23 @@
 <div style="display: flex; flex-direction: row; align-items: center; gap: 40px; padding: 20px; justify-content:center">
-  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+  <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
     <img src="https://nestjs.com/img/logo-small.svg" 
          alt="NestJS Logo" 
          style="max-width: 100%; max-height: 100%; object-fit: contain;">
   </div>
   
-  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+  <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
     <img src="https://cdn.freebiesupply.com/logos/large/2x/rabbitmq-logo-png-transparent.png"
          alt="RabbitMQ Logo" 
          style="max-width: 90%; max-height: 90%; object-fit: contain;">
   </div>
   
-  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+  <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
     <img src="https://www.postgresql.org/media/img/about/press/elephant.png" 
          alt="PostgreSQL Logo" 
          style="max-width: 85%; max-height: 85%; object-fit: contain;">
   </div>
   
-  <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+  <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
     <img src="https://raw.githubusercontent.com/kubernetes/kubernetes/master/logo/logo.png" 
          alt="Kubernetes Logo" 
          style="max-width: 80%; max-height: 80%; object-fit: contain;">
